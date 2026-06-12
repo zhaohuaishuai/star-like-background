@@ -1,0 +1,51 @@
+{
+  "id": "4957104",
+  "name": "发光如星v5",
+  "font_family": "starFamily",
+  "css_prefix_text": "star-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "43477070",
+      "name": "节拍器",
+      "font_class": "jiepaiqi",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "8250717",
+      "name": "playing",
+      "font_class": "yinlebofangtiaodongzijie",
+      "unicode": "e7d6",
+      "unicode_decimal": 59350
+    },
+    {
+      "icon_id": "12940965",
+      "name": "空状态",
+      "font_class": "kongzhuangtai",
+      "unicode": "e641",
+      "unicode_decimal": 58945
+    },
+    {
+      "icon_id": "39197616",
+      "name": "playing",
+      "font_class": "playing",
+      "unicode": "e610",
+      "unicode_decimal": 58896
+    },
+    {
+      "icon_id": "31152347",
+      "name": "无限的",
+      "font_class": "wuxiande",
+      "unicode": "e762",
+      "unicode_decimal": 59234
+    },
+    {
+      "icon_id": "11053182",
+      "name": "无限",
+      "font_class": "wuxian",
+      "unicode": "e64b",
+      "unicode_decimal": 58955
+    }
+  ]
+}

@@ -1,15 +1,13 @@
 buildscript {
-    ext.kotlin_version = '1.7.10'
+    ext.kotlin_version = '1.8.22'  // 更新到兼容版本
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://mirrors.tuna.tsinghua.edu.cn/git/flutter/download.flutter.io' }
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.0'
+        classpath 'com.android.tools.build:gradle:7.3.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
     }
 }
 
@@ -17,17 +15,15 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://mirrors.tuna.tsinghua.edu.cn/git/flutter/download.flutter.io' }
-        maven {url "https://storage.googleapis.com/download.flutter.io" }
     }
 }
 
-rootProject.buildDir = '../build'
+rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 subprojects {
-    project.evaluationDependsOn(':app')
+    project.evaluationDependsOn(":app")
 }
 
 tasks.register("clean", Delete) {

@@ -1,0 +1,23 @@
+{
+  "modelVersion": "5.0.0",
+  "name": "m",
+  "version": "1.0.0",
+  "description": "Please describe the basic information.",
+  "main": "",
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "@ohos/flutter_ohos": "file:./har/flutter.har"
+  },
+  "devDependencies": {
+    "@ohos/hypium": "1.0.6"
+  },
+  "overrides": {
+    "@ohos/flutter_ohos": "file:./har/flutter.har",
+    "audio_session": "file:./har/audio_session.har",
+    "path_provider_ohos": "file:./har/path_provider_ohos.har",
+    "just_audio_ohos": "file:./har/just_audio_ohos.har",
+    "flutter_secure_storage_ohos": "file:./har/flutter_secure_storage_ohos.har",
+    "@ohos/flutter_module": "file:./entry"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "entry",
+  "version": "1.0.0",
+  "description": "Please describe the basic information.",
+  "main": "",
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "audio_session": "file:../har/audio_session.har",
+    "path_provider_ohos": "file:../har/path_provider_ohos.har",
+    "just_audio_ohos": "file:../har/just_audio_ohos.har",
+    "flutter_secure_storage_ohos": "file:../har/flutter_secure_storage_ohos.har",
+    "audioplayers_ohos": "file:../har/audioplayers_ohos.har",
+    "webview_flutter_ohos": "file:../har/webview_flutter_ohos.har"
+  }
+}

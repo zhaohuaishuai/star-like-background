@@ -1,0 +1,39 @@
+@font-face {
+  font-family: "starFamily"; /* Project id 4957104 */
+  src: url('iconfont.woff2?t=1758672193232') format('woff2'),
+       url('iconfont.woff?t=1758672193232') format('woff'),
+       url('iconfont.ttf?t=1758672193232') format('truetype');
+}
+
+.starFamily {
+  font-family: "starFamily" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.star-jiepaiqi:before {
+  content: "\e601";
+}
+
+.star-yinlebofangtiaodongzijie:before {
+  content: "\e7d6";
+}
+
+.star-kongzhuangtai:before {
+  content: "\e641";
+}
+
+.star-playing:before {
+  content: "\e610";
+}
+
+.star-wuxiande:before {
+  content: "\e762";
+}
+
+.star-wuxian:before {
+  content: "\e64b";
+}
+

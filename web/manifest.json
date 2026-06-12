@@ -1,12 +1,12 @@
 {
-    "name": "发光如星",
-    "short_name": "发光如星",
+    "name": "m",
+    "short_name": "m",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#1B318B",
-    "theme_color": "#1B318B",
-    "description": "",
-    "orientation": "",
+    "background_color": "#0175C2",
+    "theme_color": "#0175C2",
+    "description": "A new Flutter project.",
+    "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
         {
