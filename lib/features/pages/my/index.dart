@@ -45,6 +45,8 @@ class MyPage extends GetWidget<MyController> {
               _buildSyncBanner(),
               // 用户信息区域
               _buildUserInfoSection(),
+              // 未登录时显示指纹警告横幅（始终显示）
+              _buildFingerprintWarning(),
               // Tab 切换
               TabBar(
                 tabs: [
@@ -178,6 +180,65 @@ class MyPage extends GetWidget<MyController> {
     });
   }
 
+  /// 未登录时指纹警告横幅（始终显示，仿 Web 端）
+  Widget _buildFingerprintWarning() {
+    return Obx(() {
+      if (UserService.to.isLogin) return const SizedBox();
+      return Container(
+        margin: EdgeInsets.symmetric(
+            horizontal: StarThemeData.spacing, vertical: 4),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: StarThemeData.primaryColor.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: StarThemeData.primaryColor.withOpacity(0.25),
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.info_outline,
+                size: 16, color: StarThemeData.primaryColor),
+            SizedBox(width: 8),
+            Expanded(
+              child: RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.brown.shade700,
+                    height: 1.5,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: '当前使用设备指纹标识，切换设备或清除应用数据后歌单将丢失。',
+                    ),
+                    WidgetSpan(
+                      child: GestureDetector(
+                        onTap: () {
+                          UserService.to.showLoginDialog();
+                        },
+                        child: Text(
+                          '立即登录同步',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: StarThemeData.primaryColor,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
   _buildMyShouCang() {
      return DownPullRefresn(
       onRefresh: () async {
@@ -275,12 +336,11 @@ class MyPage extends GetWidget<MyController> {
         );
       }
 
-      // 未登录时显示指纹提示 + 创建按钮
+      // 未登录时歌单为空 — 仅显示空状态图标 + 创建按钮（警告横幅已常驻显示）
       if (!UserService.to.isLogin) {
         return Column(
           children: [
             const Spacer(flex: 2),
-            // 空状态图标
             Icon(
               IconUtil.empty,
               size: 120,
@@ -293,59 +353,6 @@ class MyPage extends GetWidget<MyController> {
               },
               label: Text('创建歌单'.tr),
               icon: const Icon(Icons.add),
-            ),
-            SizedBox(height: StarThemeData.spacing * 2),
-            // 指纹警告提示条（仿 Web 端）
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 24),
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: StarThemeData.primaryColor.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: StarThemeData.primaryColor.withOpacity(0.25),
-                ),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.info_outline,
-                      size: 16, color: StarThemeData.primaryColor),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.brown.shade700,
-                          height: 1.5,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: '当前使用设备指纹标识，切换设备或清除应用数据后歌单将丢失。',
-                          ),
-                          WidgetSpan(
-                            child: GestureDetector(
-                              onTap: () {
-                                UserService.to.showLoginDialog();
-                              },
-                              child: Text(
-                                '立即登录同步',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: StarThemeData.primaryColor,
-                                  fontWeight: FontWeight.w600,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
             const Spacer(flex: 3),
           ],
