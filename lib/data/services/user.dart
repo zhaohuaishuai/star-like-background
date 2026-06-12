@@ -457,9 +457,7 @@ class _AddSongListDialogState extends State<AddSongListDialog> {
                       widget.onSuccess?.call();
                       await UserService.to.getSongList();
                       debugPrint('【创建歌单】准备关闭弹窗');
-                      if (context.mounted) {
-                        Navigator.of(context, rootNavigator: true).pop();
-                      }
+                      Get.back();
                     }
                   },
                   text: '确认'.tr,
