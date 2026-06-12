@@ -174,6 +174,10 @@ class GetStorage {
   // token
   static const String token = '_token';
 
+  // 记住的账号密码
+  static const String rememberedEmail = '_remembered_email';
+  static const String rememberedPassword = '_remembered_password';
+
   // 设备指纹ID
   static const String fingerprintId = '_fingerprintId';
 

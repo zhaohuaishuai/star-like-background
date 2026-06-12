@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:m/core/theme/theme_data.dart';
+import 'package:m/core/utils/utils.dart';
 import 'package:m/data/module/active_member_params.dart';
 import 'package:m/data/module/login_params.dart';
 import 'package:m/data/module/register_params.dart';
@@ -55,10 +56,38 @@ class _LoginDialogState extends State<LoginDialog> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _captchaController = TextEditingController();
   final TextEditingController _activeCodeController = TextEditingController();
+  final GetStorage _box = GetStorage();
+  bool _rememberPassword = false;
+
   @override
   void initState() {
     super.initState();
+    // 加载记住的账号密码
+    _loadRemembered();
     UserService.to.getCaptchaImage();
+  }
+
+  Future<void> _loadRemembered() async {
+    String? email = await _box.readString(GetStorage.rememberedEmail);
+    String? password = await _box.readString(GetStorage.rememberedPassword);
+    if (email != null && email.isNotEmpty) {
+      _emailController.text = email;
+      _rememberPassword = true;
+      if (password != null && password.isNotEmpty) {
+        _passwordController.text = password;
+      }
+    }
+    setState(() {});
+  }
+
+  Future<void> _saveRemembered() async {
+    if (_rememberPassword) {
+      await _box.writeString(GetStorage.rememberedEmail, _emailController.text.trim());
+      await _box.writeString(GetStorage.rememberedPassword, _passwordController.text.trim());
+    } else {
+      await _box.remove(GetStorage.rememberedEmail);
+      await _box.remove(GetStorage.rememberedPassword);
+    }
   }
 
   @override
@@ -162,7 +191,29 @@ class _LoginDialogState extends State<LoginDialog> {
                             }
                             return null;
                           },
-                        )
+                        ),
+                        // 记住密码复选框
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _rememberPassword,
+                              onChanged: (v) {
+                                setState(() {
+                                  _rememberPassword = v ?? false;
+                                });
+                              },
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _rememberPassword = !_rememberPassword;
+                                });
+                              },
+                              child: Text('记住账号密码'.tr,
+                                  style: const TextStyle(fontSize: 14)),
+                            ),
+                          ],
+                        ),
                       ],
                 const SizedBox(height: 16),
                 Row(
@@ -318,6 +369,8 @@ class _LoginDialogState extends State<LoginDialog> {
         uuid: UserService.to.captchaImage.value?.uuid ?? '',
         code: _captchaController.text.trim());
       UserService.to.login(loginParams).then(( bool isLogin ){
+          // 记住密码
+          _saveRemembered();
           if (isLogin) {
                 if(mounted){
                     Navigator.of(context).pop();
@@ -336,7 +389,9 @@ class _LoginDialogState extends State<LoginDialog> {
 
   void resetForm() {
     _formKey.currentState?.reset();
-    _passwordController.clear();
+    if (!_rememberPassword) {
+      _passwordController.clear();
+    }
     _captchaController.clear();
     _activeCodeController.clear();
   }
