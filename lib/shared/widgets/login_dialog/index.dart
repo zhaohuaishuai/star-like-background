@@ -197,6 +197,8 @@ class _LoginDialogState extends State<LoginDialog> {
                           children: [
                             Checkbox(
                               value: _rememberPassword,
+                              activeColor: Theme.of(context).primaryColor,
+                              checkColor: Colors.white,
                               onChanged: (v) {
                                 setState(() {
                                   _rememberPassword = v ?? false;
