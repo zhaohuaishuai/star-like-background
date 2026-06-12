@@ -361,30 +361,26 @@ class _LoginDialogState extends State<LoginDialog> {
     });
   }
 
-  void handleLogin(BuildContext context)   {
+  Future<void> handleLogin(BuildContext context) async {
      // 登录逻辑
     LoginParams loginParams = LoginParams(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
         uuid: UserService.to.captchaImage.value?.uuid ?? '',
         code: _captchaController.text.trim());
-      UserService.to.login(loginParams).then(( bool isLogin ){
-          // 记住密码
-          _saveRemembered();
-          if (isLogin) {
-                if(mounted){
-                    Navigator.of(context).pop();
-                }
-              
-                resetForm();
-                 setState(() {});
-              } else {
-                  UserService.to.getCaptchaImage().then((value)=> setState(() {}),);
-              }
-
-
-    }); 
-   
+      bool isLogin = await UserService.to.login(loginParams);
+      // 记住密码（等待写入完成）
+      await _saveRemembered();
+      if (isLogin) {
+            if(mounted){
+                Navigator.of(context).pop();
+            }
+            resetForm();
+            setState(() {});
+          } else {
+              await UserService.to.getCaptchaImage();
+              setState(() {});
+          }
   }
 
   void resetForm() {
