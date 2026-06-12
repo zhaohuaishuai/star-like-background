@@ -40,6 +40,12 @@ class CommonGetConnect extends GetConnect {
         });
       }
 
+      // 注入设备指纹
+      String fingerprint = await Utils.getOrCreateFingerprintId();
+      request.headers.addAll({
+        'fingerprintId': fingerprint,
+      });
+
       return request;
     });
 

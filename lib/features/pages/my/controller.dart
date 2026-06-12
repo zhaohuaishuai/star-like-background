@@ -8,14 +8,9 @@ class MyController extends GeDanListControllerAbs {
   @override
   Future<void> init() async {
     super.init();
-    if (UserService.to.isLogin) {
-      UserService.to.shouCangListen((newValue) {
-        song.value = newValue;
-      });
-    }
-
-    UserService.to.shouCangListen((newValue) { 
-       song.value = newValue;
+    // 监听收藏数据变化（登录/匿名均支持）
+    UserService.to.shouCangListen((newValue) {
+      song.value = newValue;
     });
   }
 

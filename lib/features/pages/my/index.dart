@@ -5,7 +5,6 @@ import 'package:m/core/utils/utils.dart';
 import 'package:m/data/services/user.dart';
 import 'package:m/features/pages/gedanlist/index.dart';
 import 'package:m/features/pages/my/controller.dart';
-import 'package:m/shared/widgets/button/primary_button.dart';
 import 'package:m/shared/widgets/down_pull_refresh.dart';
 
 // ignore: must_be_immutable
@@ -30,95 +29,153 @@ class MyPage extends GetWidget<MyController> {
                   },
                 );
               }
-              return Container();
-
-              // return IconButton(
-              //   icon: const Icon(Icons.login),
-              //   onPressed: () {
-              //     UserService.to.showLoginDialog();
-              //   },
-              // );
+              return IconButton(
+                icon: const Icon(Icons.login),
+                onPressed: () {
+                  UserService.to.showLoginDialog();
+                },
+              );
             }),
           ],
         ),
         body: Obx(() {
-          if (UserService.to.isLogin) {
-            return Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(
-                      left: StarThemeData.spacing,
-                      right: StarThemeData.spacing,
-                      bottom: StarThemeData.spacing),
-                  child: Row(
-                    children: [
-                      ClipOval(
-                        child: Container(
-                          padding: EdgeInsets.all(StarThemeData.spacing),
-                          color: StarThemeData.primaryColor.withOpacity(0.2),
-                          child: Icon(Icons.person_sharp,
-                              size: 32, color: StarThemeData.primaryColor),
-                        ),
-                      ),
-                      SizedBox(
-                        width: StarThemeData.spacing,
-                      ),
-                      Text(
-                        UserService.to.user!.email!,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                ),
-                TabBar(
-                  tabs: [
-                    Tab(text: '我的歌单'.tr),
-                    Tab(text: '我的收藏'.tr),
-                  ],
-                ),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      _buildMySongList(),
-                      _buildMyShouCang(),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      bottom:
-                          kBottomNavigationBarHeight + StarThemeData.spacing),
-                )
-              ],
-            );
-          } else {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ClipOval(
-                    child: Container(
-                      color: StarThemeData.primaryColor.withOpacity(.2),
-                      padding: EdgeInsets.all(StarThemeData.spacing),
-                      child: Icon(Icons.person,
-                          size: 128, color: StarThemeData.primaryColor),
-                    ),
-                  ),
-                  SizedBox(
-                    height: StarThemeData.spacing,
-                  ),
-                  PrimaryButton(
-                      onPressed: () {
-                        UserService.to.showLoginDialog();
-                      },
-                      text: '登录'),
+          return Column(
+            children: [
+              // 同步横幅：登录后且存在未同步的指纹歌单
+              _buildSyncBanner(),
+              // 用户信息区域
+              _buildUserInfoSection(),
+              // Tab 切换
+              TabBar(
+                tabs: [
+                  Tab(text: '我的歌单'.tr),
+                  Tab(text: '我的收藏'.tr),
                 ],
               ),
-            );
-          }
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    _buildMySongList(),
+                    _buildMyShouCang(),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                    bottom:
+                        kBottomNavigationBarHeight + StarThemeData.spacing),
+              )
+            ],
+          );
         }),
       ),
     );
+  }
+
+  Widget _buildUserInfoSection() {
+    if (UserService.to.isLogin) {
+      return Padding(
+        padding: EdgeInsets.only(
+            left: StarThemeData.spacing,
+            right: StarThemeData.spacing,
+            bottom: StarThemeData.spacing),
+        child: Row(
+          children: [
+            ClipOval(
+              child: Container(
+                padding: EdgeInsets.all(StarThemeData.spacing),
+                color: StarThemeData.primaryColor.withOpacity(0.2),
+                child: Icon(Icons.person_sharp,
+                    size: 32, color: StarThemeData.primaryColor),
+              ),
+            ),
+            SizedBox(
+              width: StarThemeData.spacing,
+            ),
+            Text(
+              UserService.to.user!.email!,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
+      );
+    }
+    return Padding(
+      padding: EdgeInsets.all(StarThemeData.spacing),
+      child: Row(
+        children: [
+          ClipOval(
+            child: Container(
+              padding: EdgeInsets.all(StarThemeData.spacing),
+              color: StarThemeData.primaryColor.withOpacity(0.2),
+              child: Icon(Icons.person_sharp,
+                  size: 32, color: StarThemeData.primaryColor),
+            ),
+          ),
+          SizedBox(width: StarThemeData.spacing),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('欢迎来到发光如星', style: TextStyle(fontSize: 16)),
+              SizedBox(height: 4),
+              Text('登录后可同步歌单到账号',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: StarThemeData.primaryColor.withOpacity(0.6))),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 同步横幅：登录后且存在未同步的指纹歌单时显示
+  Widget _buildSyncBanner() {
+    return Obx(() {
+      if (!UserService.to.isLogin) return const SizedBox();
+      // 检查是否有 userId=0 的歌单（指纹歌单）
+      bool hasFpSongList = UserService.to.songList
+          .any((song) => song.userId == 0 && song.fingerprintId != null);
+      if (!hasFpSongList) return const SizedBox();
+
+      return Container(
+        margin: EdgeInsets.symmetric(
+            horizontal: StarThemeData.spacing, vertical: 4),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: StarThemeData.primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.sync, color: StarThemeData.primaryColor, size: 20),
+            SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('同步歌单到账号',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13)),
+                  Text('将设备歌单合并到登录账号',
+                      style: TextStyle(
+                          fontSize: 11,
+                          color: StarThemeData.primaryColor
+                              .withOpacity(0.6))),
+                ],
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                await UserService.to.syncFingerprintSongList();
+              },
+              child: Text('同步'),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   _buildMyShouCang() {
@@ -141,6 +198,14 @@ class MyPage extends GetWidget<MyController> {
             children: [
               Row(
                 children: [
+                  if (!UserService.to.isLogin)
+                    Padding(
+                      padding: EdgeInsets.only(left: StarThemeData.spacing),
+                      child: Text('指纹设备歌单',
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: StarThemeData.primaryColor)),
+                    ),
                   const Spacer(),
                   TextButton.icon(
                     label: Text('创建歌单'.tr),

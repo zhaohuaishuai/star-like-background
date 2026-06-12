@@ -36,6 +36,19 @@ class UserService extends GetxService {
   get shouCangListen => _shouCang.listen;
   UserSong? get shouCang => _shouCang.value;
 
+  /// 缓存设备指纹ID
+  String? _cachedFingerprintId;
+  Future<String> getFingerprintId() async {
+    _cachedFingerprintId ??= await Utils.getOrCreateFingerprintId();
+    return _cachedFingerprintId!;
+  }
+
+  /// 歌单列表中是否有未同步的指纹歌单（userId 为 null）
+  Future<bool> hasFingerprintSongList() async {
+    if (_songList.value.isEmpty) return false;
+    return _songList.value.any((song) => song.userId == 0);
+  }
+
   Future<UserService> init() async {
     return this;
   }
@@ -53,9 +66,8 @@ class UserService extends GetxService {
     });
 
     await getInfo();
-    if (isLogin) {
-      await getSongList();
-    }
+    // 无论是否登录都加载歌单（匿名用户通过 fingerprintId 获取）
+    await getSongList();
   }
 
   static UserService get to => Get.find();
@@ -275,6 +287,18 @@ class UserService extends GetxService {
     UserSong? userSong = await api.getShouCang();
     _shouCang.value = userSong;
     return userSong;
+  }
+
+  /// 同步指纹歌单到登录账号
+  Future<bool> syncFingerprintSongList() async {
+    bool success = await api.syncSongList();
+    if (success) {
+      await getSongList();
+      Utils.showToast('同步成功'.tr);
+    } else {
+      Utils.showToast('同步失败'.tr, ToastStatusEnum.error);
+    }
+    return success;
   }
 
   void showAddSongListBotomSheet({Song? song}) {

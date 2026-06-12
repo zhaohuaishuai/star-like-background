@@ -107,8 +107,7 @@ class UserProvider extends CommonGetConnect{
   Future<bool> addSongListItem(String id, String songId) async {
     // star/h5/song_list/add_list
     dynamic result = await post(
-        '/star/h5/song_list/add_list', {'id': id, 'list': songId},
-        isLogin: true);
+        '/star/h5/song_list/add_list', {'id': id, 'list': songId});
     if (result.body?['code'] == 200) {
       return true;
     } else {
@@ -133,6 +132,16 @@ class UserProvider extends CommonGetConnect{
       return UserSong.fromJson(result.body['data']);
     } else {
       return null;
+    }
+  }
+
+  // /star/h5/song_list/sync 同步指纹歌单到账号
+  Future<bool> syncSongList() async {
+    dynamic result = await post('/star/h5/song_list/sync', {});
+    if (result.body?['code'] == 200) {
+      return true;
+    } else {
+      return false;
     }
   }
 }

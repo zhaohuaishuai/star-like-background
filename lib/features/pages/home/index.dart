@@ -327,7 +327,7 @@ class HomePage extends GetWidget<HomeController> {
   _mySongListBuild() {
     return SliverToBoxAdapter(
       child: Obx(() {
-        if (UserService.to.isLogin && UserService.to.songList.isNotEmpty) {
+        if (UserService.to.songList.isNotEmpty) {
           return SizedBox(
             height: 80,
             child: Column(

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -127,6 +128,24 @@ class Utils {
 
     return packageInfo.version;
   }
+
+  /// 生成设备指纹ID（首次启动时创建并持久化）
+  static Future<String> getOrCreateFingerprintId() async {
+    GetStorage box = GetStorage();
+    String? id = await box.readString(GetStorage.fingerprintId);
+    if (id != null && id.isNotEmpty) return id;
+
+    // 生成随机 UUID 格式字符串
+    final random = Random();
+    String chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    String generateSegment(int length) => List.generate(
+        length, (_) => chars[random.nextInt(chars.length)]).join();
+    String fingerprint =
+        '${generateSegment(8)}-${generateSegment(4)}-${generateSegment(4)}-${generateSegment(4)}-${generateSegment(12)}';
+
+    await box.writeString(GetStorage.fingerprintId, fingerprint);
+    return fingerprint;
+  }
 }
 
 class GetStorage {
@@ -154,6 +173,9 @@ class GetStorage {
 
   // token
   static const String token = '_token';
+
+  // 设备指纹ID
+  static const String fingerprintId = '_fingerprintId';
 
   static const String version = '_version';
 

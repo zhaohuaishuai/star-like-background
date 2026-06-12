@@ -23,18 +23,18 @@ abstract class GeDanListControllerAbs extends GetxController {
 
   /// 权限按钮has
   bool get hasPer {
-
-    debugPrint('userId:${song.value?.userId} ,${UserService.to.user?.userId}');
-    // 未登录
-    if (!UserService.to.isLogin) {
-      return false;
-    } 
-
-    // 不是自己的歌单
-    if (song.value?.userId != UserService.to.user?.userId) {
-      return false;
+    // 已登录且是本人的歌单
+    if (UserService.to.isLogin &&
+        song.value?.userId == UserService.to.user?.userId) {
+      return true;
     }
-    return true;
+    // 未登录但歌单属于当前设备指纹
+    if (!UserService.to.isLogin &&
+        song.value?.userId == 0 &&
+        song.value?.fingerprintId != null) {
+      return true;
+    }
+    return false;
   }
 
   @override
