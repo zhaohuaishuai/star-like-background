@@ -20,6 +20,8 @@ abstract class GeDanListControllerAbs extends GetxController {
 
   Future<UserSong?> getDataSource();
 
+  /// 当前设备指纹ID（在 onInit 中缓存）
+  String? _deviceFingerprintId;
 
   /// 权限按钮has
   bool get hasPer {
@@ -28,10 +30,17 @@ abstract class GeDanListControllerAbs extends GetxController {
         song.value?.userId == UserService.to.user?.userId) {
       return true;
     }
-    // 未登录但歌单属于当前设备指纹（userId 为 null 且 fingerprintId 匹配）
+    // 未登录但歌单属于当前设备指纹
     if (!UserService.to.isLogin &&
         song.value?.userId == null &&
         song.value?.fingerprintId != null) {
+      return true;
+    }
+    // 已登录但歌单是指纹歌单（userId 为 null），检查指纹是否匹配
+    if (UserService.to.isLogin &&
+        song.value?.userId == null &&
+        song.value?.fingerprintId != null &&
+        song.value?.fingerprintId == _deviceFingerprintId) {
       return true;
     }
     return false;
@@ -41,7 +50,12 @@ abstract class GeDanListControllerAbs extends GetxController {
   void onInit() {
     super.onInit();
     debugPrint('gedanlist page init');
+    _cacheFingerprintId();
     init();
+  }
+
+  Future<void> _cacheFingerprintId() async {
+    _deviceFingerprintId = await UserService.to.getFingerprintId();
   }
 
   Future<void> init() async {
