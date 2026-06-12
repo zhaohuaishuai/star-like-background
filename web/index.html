@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A new Flutter project.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="sgb_app">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <title>sgb_app</title>
+  <link rel="manifest" href="manifest.json">
+
+  <script>
+    // The value below is injected by flutter build, do not touch.
+    var serviceWorkerVersion = null;
+  </script>
+  <!-- This script adds the flutter initialization JS code -->
+  <script src="flutter.js" defer></script>
+  <style>
+
+  </style>
+</head>
+
+<body>
+
+  <div id="loading" style="
+  width:100vw;height:100vh;background-color:rgb(25,25,35);
+   display: flex;
+    flex-direction: column;
+    justify-content: center;
+">
+    <img style="width:100%;height:auto;" src="https://www.top237.top/lsky/2023/01/09/63bbbb4f70040.gif" alt="加载中...">
+    <div style="color:#fff;text-align:center;font-size:16px;">加载中...</div>
+    <div style="color:#fff;text-align:center;padding: 0 50px;
+    margin: 10px auto;font-size:16px;">首次可能加载较慢，请耐心等待。</div>
+  </div>
+  <script>
+    window.addEventListener('load', function (ev) {
+      // Download main.dart.js
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        }
+      }).then(function (engineInitializer) {
+        return engineInitializer.initializeEngine()
+      }).then(function (appRunner) {
+        document.getElementById('loading').remove()
+        return appRunner.runApp()
+      })
+    })
+
+    function setTitle (name) {
+      document.title = name
+    }
+  </script>
+
+</body>
+
+</html>
+<!-- Matomo -->
+<!-- <script>
+  var _paq = window._paq = window._paq || []
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(['trackPageView'])
+  _paq.push(['enableLinkTracking']);
+  (function () {
+    var u = "//cloud.start237.top/"
+    _paq.push(['setTrackerUrl', u + 'matomo.php'])
+    _paq.push(['setSiteId', '5'])
+    var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0]
+    g.async = true; g.src = u + 'matomo.js'; s.parentNode.insertBefore(g, s)
+  })();
+</script> -->
+<!-- End Matomo Code -->
+<script src="https://cdn.jsdelivr.net/npm/vconsole@latest/dist/vconsole.min.js"></script>
+<script>
+  function webDebug () {
+    // VConsole 默认会挂载到 `window.VConsole` 上
+    var vConsole = new window.VConsole()
+  }
+  console.log(navigator.userAgent)
+  function isAndroid () {
+    var u = navigator.userAgent
+    var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1
+    return isAndroid
+  }
+  function isIOS () {
+    var u = navigator.userAgent
+    var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+    return isiOS
+  }
+  function webHistoryLength () {
+
+    return window.history.length
+  }
+
+
+
+
+</script>
