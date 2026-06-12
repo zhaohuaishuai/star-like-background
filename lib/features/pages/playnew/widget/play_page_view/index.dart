@@ -202,12 +202,11 @@ class _PlayPageViewState extends State<PlayPageView>
 
   Widget _favoriteBuilder(Color iconColor) {
     bool isFavorite = false;
-    if (UserService.to.isLogin) {
-      if (UserService.to.shouCang?.list != null &&
-          UserService.to.shouCang!.list!.isNotEmpty) {
-        isFavorite = UserService.to.shouCang!.list!
-            .contains(ads.currentSong.value?.id ?? ''); //
-      }
+    // 无论是否登录，都检查收藏列表（后端通过 fingerprintId 或 userId 匹配）
+    if (UserService.to.shouCang?.list != null &&
+        UserService.to.shouCang!.list!.isNotEmpty) {
+      isFavorite = UserService.to.shouCang!.list!
+          .contains(ads.currentSong.value?.id ?? '');
     }
 
     IconData iconData =
@@ -269,8 +268,12 @@ class _PlayPageViewState extends State<PlayPageView>
           ),
           IconButton(
               onPressed: () async {
-                if (!UserService.to.isLogin) {
-                  UserService.to.showLoginDialog();
+                // 尚未加载到收藏歌单，先尝试获取
+                if (UserService.to.shouCang == null) {
+                  await UserService.to.getShouCang();
+                }
+                if (UserService.to.shouCang == null) {
+                  Toast.showToast('收藏功能不可用'.tr);
                   return;
                 }
                 if (isFavorite) {
