@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:m/data/api/common.dart';
 import 'package:m/data/module/active_member_params.dart';
 import 'package:m/data/module/captcha_image.dart';
@@ -75,8 +77,11 @@ class UserProvider extends CommonGetConnect{
 
   // /star/h5/song_list/add
   Future<bool> addSongList(String name, [String? list]) async {
+    var body = {'name': name, 'list': list ?? ''};
+    debugPrint('【创建歌单】请求: ${jsonEncode(body)}');
     dynamic result =
-        await post('/star/h5/song_list', {'name': name, 'list': list ?? ''});
+        await post('/star/h5/song_list', body);
+    debugPrint('【创建歌单】响应: code=${result.body?['code']}, msg=${result.body?['msg']}');
     if (result.body?['code'] == 200) {
       return true;
     } else {

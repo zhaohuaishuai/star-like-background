@@ -1,7 +1,6 @@
 import 'dart:convert';
 
- 
- 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/request/request.dart';
@@ -46,6 +45,7 @@ class CommonGetConnect extends GetConnect {
         'fingerprintId': fingerprint,
       });
 
+      debugPrint('【API请求】${request.method} ${request.url} headers=${request.headers}');
       return request;
     });
 
