@@ -95,13 +95,14 @@ class _SongListDetailIistState extends State<SongListDetailIist> {
   
   @override
   Widget build(BuildContext context) {
-    if (widget.controller.list.isEmpty) {
-      return Center(
-        child: Icon(IconUtil.empty,
-            size: 68, color: StarThemeData.primaryColor.withOpacity(0.5)),
-      );
-    }
-    return Obx(() => ReorderableListView.builder(
+    return Obx(() {
+      if (widget.controller.list.isEmpty) {
+        return Center(
+          child: Icon(IconUtil.empty,
+              size: 120, color: StarThemeData.primaryColor.withOpacity(0.5)),
+        );
+      }
+      return ReorderableListView.builder(
           onReorder: (oldIndex, newIndex) {
             widget.controller.onReorder(oldIndex, newIndex);
           },
@@ -155,6 +156,7 @@ class _SongListDetailIistState extends State<SongListDetailIist> {
               ),
             );
           },
-        ));
+        );
+      });
   }
 }
