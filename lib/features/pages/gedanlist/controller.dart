@@ -28,9 +28,9 @@ abstract class GeDanListControllerAbs extends GetxController {
         song.value?.userId == UserService.to.user?.userId) {
       return true;
     }
-    // 未登录但歌单属于当前设备指纹
+    // 未登录但歌单属于当前设备指纹（userId 为 null 且 fingerprintId 匹配）
     if (!UserService.to.isLogin &&
-        song.value?.userId == 0 &&
+        song.value?.userId == null &&
         song.value?.fingerprintId != null) {
       return true;
     }

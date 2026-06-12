@@ -133,9 +133,9 @@ class MyPage extends GetWidget<MyController> {
   Widget _buildSyncBanner() {
     return Obx(() {
       if (!UserService.to.isLogin) return const SizedBox();
-      // 检查是否有 userId=0 的歌单（指纹歌单）
+      // 检查是否有 userId 为 null 的歌单（指纹歌单）
       bool hasFpSongList = UserService.to.songList
-          .any((song) => song.userId == 0 && song.fingerprintId != null);
+          .any((song) => song.userId == null && song.fingerprintId != null);
       if (!hasFpSongList) return const SizedBox();
 
       return Container(

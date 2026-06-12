@@ -46,7 +46,7 @@ class UserService extends GetxService {
   /// 歌单列表中是否有未同步的指纹歌单（userId 为 null）
   Future<bool> hasFingerprintSongList() async {
     if (_songList.value.isEmpty) return false;
-    return _songList.value.any((song) => song.userId == 0);
+    return _songList.value.any((song) => song.userId == null);
   }
 
   Future<UserService> init() async {
