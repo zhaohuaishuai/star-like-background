@@ -6,7 +6,7 @@ class UserSong {
   final int id;
   final String name;
   final String? fingerprintId;
-  final int userId;
+  final int? userId;
   final String? list;
   final String? delFlag;
   final String? createBy;
@@ -19,7 +19,7 @@ class UserSong {
     required this.id,
     required this.name,
     this.fingerprintId,
-    required this.userId,
+    this.userId,
     this.list,
     this.delFlag,
     this.createBy,

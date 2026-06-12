@@ -10,7 +10,7 @@ UserSong _$UserSongFromJson(Map<String, dynamic> json) => UserSong(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String,
       fingerprintId: json['fingerprintId'] as String?,
-      userId: (json['userId'] as num).toInt(),
+      userId: (json['userId'] as num?)?.toInt(),
       list: json['list'] as String?,
       delFlag: json['delFlag'] as String?,
       createBy: json['createBy'] as String?,
