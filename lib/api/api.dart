@@ -2,6 +2,7 @@ import 'package:dio/dio.dart' as DDio;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:uuid/uuid.dart';
 import 'dart:convert';
 import '../type/sgbType.dart';
 import '../type/appVersion.dart';
@@ -13,8 +14,26 @@ class SgbProvider extends GetConnect {
  @override
  void onInit() {
 
-    httpClient.timeout = Duration(seconds: 2);
+    httpClient.timeout = Duration(seconds: 10);
 
+
+    // 设备指纹：首次启动生成 UUID 并持久化
+    String? deviceId = getStorage.read('device_fingerprint_id');
+    if (deviceId == null) {
+      deviceId = const Uuid().v4();
+      if (deviceId != null) {
+        getStorage.write('device_fingerprint_id', deviceId);
+      }
+    }
+
+    // 添加请求拦截器，自动注入 fingerprintId 到请求头
+    httpClient.addRequestModifier<void>((request) {
+      if (deviceId != null) {
+        request.headers['fingerprintId'] = deviceId!;
+        request.headers['Fingerprintid'] = deviceId!;
+      }
+      return request;
+    });
 
     // TODO: implement onInit
     super.onInit();
