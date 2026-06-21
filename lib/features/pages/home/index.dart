@@ -156,14 +156,18 @@ class HomePage extends GetWidget<HomeController> {
                     controller.activeBannerIndex.value = index;
                   },
                   itemBuilder: (context, index) {
-                    // 只加载当前活跃和相邻的图片，其余显示占位图
+                    // 预加载策略：当前活跃及相邻的图片才加载 Image.network，其余显示占位图
                     final activeIndex = controller.activeBannerIndex.value;
                     final itemCount = controller.recommendList.length;
+                    // 一上来先预加载前 3 张
+                    final isInitialPreload = index < 3;
+                    // 当前活跃的图片
                     final isActive = index == activeIndex;
                     // 考虑循环模式首尾相接的情况（如4张图时索引0和3相邻）
                     final diff = (index - activeIndex).abs();
                     final wrappedDiff = itemCount - diff;
                     final isNearby = diff <= 1 || wrappedDiff <= 1;
+                    final shouldLoad = isInitialPreload || isActive || isNearby;
                     return Padding(
                         padding: EdgeInsets.only(
                           left: StarThemeData.spacing,
@@ -181,7 +185,7 @@ class HomePage extends GetWidget<HomeController> {
                                 SizedBox(
                                     width: constraints.maxWidth,
                                     height: constraints.maxWidth / (16 / 9),
-                                    child: isActive || isNearby
+                                    child: shouldLoad
                                         ? Image.network(
                                             fit: BoxFit.cover,
                                             // ignore: invalid_use_of_protected_member
