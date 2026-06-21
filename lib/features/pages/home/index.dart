@@ -158,8 +158,12 @@ class HomePage extends GetWidget<HomeController> {
                   itemBuilder: (context, index) {
                     // 只加载当前活跃和相邻的图片，其余显示占位图
                     final activeIndex = controller.activeBannerIndex.value;
+                    final itemCount = controller.recommendList.length;
                     final isActive = index == activeIndex;
-                    final isNearby = (index - activeIndex).abs() <= 1;
+                    // 考虑循环模式首尾相接的情况（如4张图时索引0和3相邻）
+                    final diff = (index - activeIndex).abs();
+                    final wrappedDiff = itemCount - diff;
+                    final isNearby = diff <= 1 || wrappedDiff <= 1;
                     return Padding(
                         padding: EdgeInsets.only(
                           left: StarThemeData.spacing,
