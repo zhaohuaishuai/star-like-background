@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -404,18 +405,26 @@ class BibleModel extends ChangeNotifier {
     return await loadLocalDbBibleDataVolume(volumeSN);
   }
 
-  /// 下一章
+  /// 下一章（用户手动切换时停止音频并取消自动播放订阅）
   nextChapter() async {
     chapterSN += 1;
+    _completionSubscription?.cancel();
+    await BiblePlayer.stop();
   }
 
-  /// 上一章
+  /// 上一章（用户手动切换时停止音频并取消自动播放订阅）
   preChapter() async {
     chapterSN -= 1;
+    _completionSubscription?.cancel();
+    await BiblePlayer.stop();
   }
+
+  /// 音频播放完成自动下一章的订阅
+  StreamSubscription<void>? _completionSubscription;
 
   @override
   dispose() {
+    _completionSubscription?.cancel();
     // db?.close();
     super.dispose();
   }
@@ -423,8 +432,30 @@ class BibleModel extends ChangeNotifier {
   Stream<bool> get playingStream => BiblePlayer.playingStream;
   Stream<Duration> get positionStream => BiblePlayer.positionStream;
 
+  /// 播放当前章音频，并监听播放完成后自动跳转到下一章
   void play() async {
     await BiblePlayer.playBible(volumnSNFullName!, chapterSN.toString());
+
+    // 重新订阅播放完成事件，确保每播放一次只触发一次自动跳转
+    _completionSubscription?.cancel();
+    _completionSubscription = BiblePlayer.onComplete.listen((_) {
+      _autoPlayNext();
+    });
+  }
+
+  /// 音频播放完成后自动切换到下一章并继续播放
+  void _autoPlayNext() {
+    // 判断是否已是最后一章（最后一卷书的最后一章）
+    final isLastChapter = chapterSN >= chapterSNList.length;
+    final isLastVolume = volumeSN >= dictList.length;
+    if (isLastChapter && isLastVolume) {
+      Toast.showToast('已到最后一章');
+      return;
+    }
+
+    nextChapter();
+    scrollToIndex(0);
+    play();
   }
 
   void copy() async {

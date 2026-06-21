@@ -14,6 +14,9 @@ static final AudioPlayer _audioPlayer = AudioPlayer();
   // 加载状态
   static Stream<PlayerState> get playerState => _audioPlayer.onPlayerStateChanged.map((event) => event);
 
+  /// 播放完成事件流 — 当音频自然播放完毕时触发
+  static Stream<void> get onComplete => _audioPlayer.onPlayerComplete;
+
   static Future<void> seek(Duration duration) async {
     await _audioPlayer.seek(duration);
   }
