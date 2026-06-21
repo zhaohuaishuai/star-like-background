@@ -193,7 +193,8 @@ class _LyricWidgetState extends State<LyricWidget> {
     );
   }
 
-// 解析和排序歌词
+  /// 解析和排序歌词
+  /// 将多时间戳行展开为单行，按时间排序，并将百分秒转换为毫秒格式
   String sortText(String text) {
     // 提取每一行歌词
     List<String> lines = text.split('\n');
@@ -215,27 +216,47 @@ class _LyricWidgetState extends State<LyricWidget> {
       }
     }
 
-    // 对时间戳进行排序
+    // 使用毫秒精度进行排序，确保同秒内的多时间戳顺序正确
     allTimestamps.sort((a, b) {
-      List<int> timeA = _parseTime(a['timestamp']!);
-      List<int> timeB = _parseTime(b['timestamp']!);
-      return (timeA[0] * 60 + timeA[1]).compareTo(timeB[0] * 60 + timeB[1]);
+      return _parseTimestampToMs(a['timestamp']!)
+          .compareTo(_parseTimestampToMs(b['timestamp']!));
     });
 
-    // 返回排序后的歌词
-    return allTimestamps
-        .map((entry) => "[${entry['timestamp']}]${entry['text']}")
+    // 将百分秒时间戳转换为毫秒格式，适配 flutter_lyric 的解析逻辑
+    // LRC 标准 [mm:ss.xx] 中 xx 是百分秒（1/100秒），
+    // 但 flutter_lyric 的 ParserLrc 将其当作毫秒解析，
+    // 因此需将 xx * 10 转换为正确的毫秒值输出
+    var sortedLyrics = allTimestamps
+        .map((entry) =>
+            "[${_centisecondsToMilliseconds(entry['timestamp']!)}]${entry['text']}")
         .toList()
         .join('\n');
+    // 在歌词开头插入一个空行占位，时间范围为 [0, 首行实际开始时间)
+    // 解决 flutter_lyric 的 getCurrentLine 在 progress=0 时默认选中第一行的问题
+    return '[00:00.000]\n$sortedLyrics';
   }
 
-// 解析时间戳（"mm:ss.xx"）为分钟和秒数的列表
-  List<int> _parseTime(String timestamp) {
-    List<String> parts = timestamp.split(':');
-    int minutes = int.parse(parts[0]);
-    double seconds = double.parse(parts[1]);
-    int sec = seconds.toInt();
-    return [minutes, sec];
+  /// 将百分秒格式 [mm:ss.xx] 转换为毫秒格式 [mm:ss.xxx]
+  /// 例如：[00:08.48] → [00:08.480]
+  String _centisecondsToMilliseconds(String timestamp) {
+    final parts = timestamp.split('.');
+    if (parts.length != 2) return timestamp;
+    // 取前2位百分秒，乘以10转为毫秒
+    final centiseconds = int.parse(parts[1].padRight(2, '0').substring(0, 2));
+    final ms = (centiseconds * 10).toString().padLeft(3, '0');
+    return '${parts[0]}.$ms';
+  }
+
+  /// 将时间戳 [mm:ss.xx] 解析为毫秒数，用于精确排序
+  int _parseTimestampToMs(String timestamp) {
+    final parts = timestamp.split(':');
+    final minutes = int.parse(parts[0]);
+    final secParts = parts[1].split('.');
+    final seconds = int.parse(secParts[0]);
+    final centiseconds = secParts.length > 1
+        ? int.parse(secParts[1].padRight(2, '0').substring(0, 2))
+        : 0;
+    return (minutes * 60 + seconds) * 1000 + centiseconds * 10;
   }
 
   void refreshLyric() {
