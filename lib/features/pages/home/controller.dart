@@ -26,6 +26,8 @@ class HomeController extends GetxController {
   List<Recommend> get recommendList => _recommendList;
 
   RxInt currentIndex = 0.obs;
+  /// 轮播图当前活跃索引，用于控制图片懒加载
+  RxInt activeBannerIndex = 0.obs;
 
   IndexProvider api = Get.put<IndexProvider>(IndexProvider());
   RxBool isLoading = false.obs;

@@ -151,7 +151,15 @@ class HomePage extends GetWidget<HomeController> {
                   viewportFraction: 0.9,
                   scale: 1,
                   itemCount: controller.recommendList.length,
+                  onIndexChanged: (index) {
+                    // 更新当前活跃索引，触发懒加载
+                    controller.activeBannerIndex.value = index;
+                  },
                   itemBuilder: (context, index) {
+                    // 只加载当前活跃和相邻的图片，其余显示占位图
+                    final activeIndex = controller.activeBannerIndex.value;
+                    final isActive = index == activeIndex;
+                    final isNearby = (index - activeIndex).abs() <= 1;
                     return Padding(
                         padding: EdgeInsets.only(
                           left: StarThemeData.spacing,
@@ -169,11 +177,22 @@ class HomePage extends GetWidget<HomeController> {
                                 SizedBox(
                                     width: constraints.maxWidth,
                                     height: constraints.maxWidth / (16 / 9),
-                                    child: Image.network(
-                                        fit: BoxFit.cover,
-                                        // ignore: invalid_use_of_protected_member
-                                        controller
-                                            .recommendList[index].imgUrl)),
+                                    child: isActive || isNearby
+                                        ? Image.network(
+                                            fit: BoxFit.cover,
+                                            // ignore: invalid_use_of_protected_member
+                                            controller
+                                                .recommendList[index].imgUrl)
+                                        : Container(
+                                            color: Colors.grey[300],
+                                            child: const Center(
+                                              child: Icon(
+                                                Icons.image,
+                                                color: Colors.white54,
+                                                size: 48,
+                                              ),
+                                            ),
+                                          )),
                               ],
                             ),
                           ),
