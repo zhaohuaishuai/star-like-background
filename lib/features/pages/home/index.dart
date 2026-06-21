@@ -148,26 +148,15 @@ class HomePage extends GetWidget<HomeController> {
                   duration: 1000,
                   loop: true,
                   scrollDirection: Axis.horizontal,
-                  viewportFraction: 0.9,
-                  scale: 1,
+                  viewportFraction: 1.0,
                   itemCount: controller.recommendList.length,
                   onIndexChanged: (index) {
                     // 更新当前活跃索引，触发懒加载
                     controller.activeBannerIndex.value = index;
                   },
                   itemBuilder: (context, index) {
-                    // 预加载策略：当前活跃及相邻的图片才加载 Image.network，其余显示占位图
-                    final activeIndex = controller.activeBannerIndex.value;
-                    final itemCount = controller.recommendList.length;
-                    // 一上来先预加载前 3 张
-                    final isInitialPreload = index < 3;
-                    // 当前活跃的图片
-                    final isActive = index == activeIndex;
-                    // 考虑循环模式首尾相接的情况（如4张图时索引0和3相邻）
-                    final diff = (index - activeIndex).abs();
-                    final wrappedDiff = itemCount - diff;
-                    final isNearby = diff <= 1 || wrappedDiff <= 1;
-                    final shouldLoad = isInitialPreload || isActive || isNearby;
+                    // 仅加载当前活跃的图片，其余显示占位图节约资源
+                    final isActive = index == controller.activeBannerIndex.value;
                     return Padding(
                         padding: EdgeInsets.only(
                           left: StarThemeData.spacing,
@@ -185,7 +174,7 @@ class HomePage extends GetWidget<HomeController> {
                                 SizedBox(
                                     width: constraints.maxWidth,
                                     height: constraints.maxWidth / (16 / 9),
-                                    child: shouldLoad
+                                    child: isActive
                                         ? Image.network(
                                             fit: BoxFit.cover,
                                             // ignore: invalid_use_of_protected_member
