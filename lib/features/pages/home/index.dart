@@ -156,7 +156,9 @@ class HomePage extends GetWidget<HomeController> {
                   },
                   itemBuilder: (context, index) {
                     // 仅加载当前活跃的图片，其余显示占位图节约资源
+                    // 已加载过的图片保留不降级，确保切换过渡动画中不出现灰色闪烁
                     final isActive = index == controller.activeBannerIndex.value;
+                    final shouldLoad = isActive || controller.isBannerImageLoaded(index);
                     return Padding(
                         padding: EdgeInsets.only(
                           left: StarThemeData.spacing,
@@ -174,12 +176,19 @@ class HomePage extends GetWidget<HomeController> {
                                 SizedBox(
                                     width: constraints.maxWidth,
                                     height: constraints.maxWidth / (16 / 9),
-                                    child: isActive
+                                    child: shouldLoad
                                         ? Image.network(
                                             fit: BoxFit.cover,
                                             // ignore: invalid_use_of_protected_member
                                             controller
-                                                .recommendList[index].imgUrl)
+                                                .recommendList[index].imgUrl,
+                                            frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                                              if (frame != null) {
+                                                controller.markBannerImageLoaded(index);
+                                              }
+                                              return child;
+                                            },
+                                          )
                                         : Container(
                                             color: Colors.grey[300],
                                             child: const Center(

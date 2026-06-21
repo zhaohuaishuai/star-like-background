@@ -28,6 +28,14 @@ class HomeController extends GetxController {
   RxInt currentIndex = 0.obs;
   /// 轮播图当前活跃索引，用于控制图片懒加载
   RxInt activeBannerIndex = 0.obs;
+  /// 已加载过的轮播图图片索引，加载后不再降级为占位图
+  final Set<int> _loadedBannerIndices = {};
+
+  /// 检查轮播图图片是否已加载过
+  bool isBannerImageLoaded(int index) => _loadedBannerIndices.contains(index);
+
+  /// 标记轮播图图片已加载
+  void markBannerImageLoaded(int index) => _loadedBannerIndices.add(index);
 
   IndexProvider api = Get.put<IndexProvider>(IndexProvider());
   RxBool isLoading = false.obs;
