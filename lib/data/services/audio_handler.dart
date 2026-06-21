@@ -237,10 +237,10 @@ class StarAudioHandler extends BaseAudioHandler {
     }
 
     if (kIsWeb || !Platform.isIOS) {
-      _setNotIosAudioSource(source, currentSong);
+      await _setNotIosAudioSource(source, currentSong);
       return;
     }
-    _setIosAudioSource(source);
+    await _setIosAudioSource(source);
   }
 
   _setIosAudioSource(AudioSource? source) async {
