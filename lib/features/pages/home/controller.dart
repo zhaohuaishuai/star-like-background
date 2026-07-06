@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:m/app/routes.dart';
-import 'package:m/core/utils/down_file.dart';
 import 'package:m/core/utils/utils.dart';
 import 'package:m/data/api/index.dart';
 import 'package:m/data/module/app_version.dart';
@@ -13,6 +12,7 @@ import 'package:m/data/module/recommend.dart';
 import 'package:m/data/module/sgb_data.dart';
 import 'package:m/data/services/sgb.dart';
 import 'package:m/data/services/star_player.dart';
+import 'package:m/shared/widgets/version_update_dialog/index.dart';
 
 class HomeController extends GetxController {
   StarPlayerAbstract starPlayer = StarPlayer.to;
@@ -139,22 +139,7 @@ class HomeController extends GetxController {
       if (version == appVersion.version) {
         return;
       }
-      Get.defaultDialog(
-        barrierDismissible: false,
-        title: '版本更新'.tr,
-        content: Text(appVersion.context),
-        onWillPop: () async {
-          return false;
-        },
-        actions: [
-          FilledButton(
-            child: Text('确定'.tr, style: const TextStyle(color: Colors.white)),
-            onPressed: () async {
-              await DownFile.downLoadApk(url: appVersion.downpath);
-            },
-          ),
-        ],
-      );
+      VersionUpdateDialog.show(appVersion);
     }
   }
 }
