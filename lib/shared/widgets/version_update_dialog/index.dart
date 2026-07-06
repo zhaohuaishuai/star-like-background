@@ -17,9 +17,9 @@ class VersionUpdateDialog extends StatelessWidget {
   final AppVersion appVersion;
 
   const VersionUpdateDialog({
-    Key? key,
+    super.key,
     required this.appVersion,
-  }) : super(key: key);
+  });
 
   /// 以动画方式弹出更新对话框
   static void show(AppVersion appVersion) {
@@ -120,7 +120,7 @@ class VersionUpdateDialog extends StatelessWidget {
           // 主标题
           Text(
             '版本更新'.tr,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -371,7 +371,7 @@ class VersionUpdateDialog extends StatelessWidget {
 class _AnimatedEntry extends StatefulWidget {
   final Widget child;
 
-  const _AnimatedEntry({Key? key, required this.child}) : super(key: key);
+  const _AnimatedEntry({required this.child});
 
   @override
   State<_AnimatedEntry> createState() => _AnimatedEntryState();
