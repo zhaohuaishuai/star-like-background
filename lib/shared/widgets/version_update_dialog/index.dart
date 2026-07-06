@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:m/core/utils/down_file.dart';
@@ -64,13 +62,8 @@ class VersionUpdateDialog extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // ── 顶部装饰区域 (天光意象) ──
                     _buildHeader(isDark, theme),
-
-                    // ── 内容区域 ──
                     _buildContent(context, isDark, theme),
-
-                    // ── 底部按钮 ──
                     _buildActions(isDark, theme),
                   ],
                 ),
@@ -113,11 +106,8 @@ class VersionUpdateDialog extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // 十字星芒光晕装饰
           _buildGlowIcon(isDark),
           const SizedBox(height: 16),
-
-          // 主标题
           Text(
             '版本更新'.tr,
             style: const TextStyle(
@@ -126,11 +116,10 @@ class VersionUpdateDialog extends StatelessWidget {
               color: Colors.white,
               letterSpacing: 4,
               height: 1.3,
+              decoration: TextDecoration.none,
             ),
           ),
           const SizedBox(height: 10),
-
-          // 版本号徽章
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
             decoration: BoxDecoration(
@@ -157,6 +146,7 @@ class VersionUpdateDialog extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: Colors.white.withOpacity(0.95),
                     letterSpacing: 1,
+                    decoration: TextDecoration.none,
                   ),
                 ),
               ],
@@ -203,7 +193,6 @@ class VersionUpdateDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 小标题
           Text(
             '更新内容'.tr,
             style: TextStyle(
@@ -213,11 +202,10 @@ class VersionUpdateDialog extends StatelessWidget {
                   ? Colors.white.withOpacity(0.7)
                   : const Color(0xFF6B7280),
               letterSpacing: 2,
+              decoration: TextDecoration.none,
             ),
           ),
           const SizedBox(height: 12),
-
-          // 装饰分割线
           Container(
             height: 2,
             decoration: BoxDecoration(
@@ -230,8 +218,6 @@ class VersionUpdateDialog extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-
-          // 更新内容文本
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
@@ -255,6 +241,7 @@ class VersionUpdateDialog extends StatelessWidget {
                     ? Colors.white.withOpacity(0.85)
                     : const Color(0xFF374151),
                 letterSpacing: 0.3,
+                decoration: TextDecoration.none,
               ),
             ),
           ),
@@ -267,101 +254,63 @@ class VersionUpdateDialog extends StatelessWidget {
   Widget _buildActions(bool isDark, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 28),
-      child: Column(
-        children: [
-          // 主按钮 ─ 立即更新
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
+      child: SizedBox(
+        width: double.infinity,
+        height: 50,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            gradient: LinearGradient(
+              colors: isDark
+                  ? [
+                      const Color(0xFFB22222),
+                      const Color(0xFFDC3545),
+                    ]
+                  : [
+                      const Color(0xFFC0392B),
+                      const Color(0xFFE74C3C),
+                    ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFDC3545).withOpacity(0.4),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: ElevatedButton(
+            onPressed: () {
+              DownFile.downLoadApk(url: appVersion.downpath);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
-                gradient: LinearGradient(
-                  colors: isDark
-                      ? [
-                          const Color(0xFFB22222),
-                          const Color(0xFFDC3545),
-                        ]
-                      : [
-                          const Color(0xFFC0392B),
-                          const Color(0xFFE74C3C),
-                        ],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFDC3545).withOpacity(0.4),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: ElevatedButton(
-                onPressed: () {
-                  DownFile.downLoadApk(url: appVersion.downpath);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.download_rounded, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      '立即更新'.tr,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // 次要按钮 ─ 稍后再说
-          SizedBox(
-            width: double.infinity,
-            height: 44,
-            child: TextButton(
-              onPressed: () {
-                if (Platform.isAndroid) {
-                  // 不执行任何操作，保持弹窗可见
-                }
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: isDark
-                    ? Colors.white.withOpacity(0.4)
-                    : const Color(0xFF9CA3AF),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.download_rounded, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  '立即更新'.tr,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 2,
+                    decoration: TextDecoration.none,
+                  ),
                 ),
-              ),
-              child: Text(
-                '稍后更新'.tr,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: isDark
-                      ? Colors.white.withOpacity(0.4)
-                      : const Color(0xFF9CA3AF),
-                  letterSpacing: 1,
-                ),
-              ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -393,7 +342,7 @@ class _AnimatedEntryState extends State<_AnimatedEntry>
 
     _scaleAnimation = CurvedAnimation(
       parent: _controller,
-      curve: const Cubic(0.22, 1.0, 0.36, 1.0), // 弹性缓出
+      curve: const Cubic(0.22, 1.0, 0.36, 1.0),
     );
 
     _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
