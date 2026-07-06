@@ -170,11 +170,11 @@ class _LyricWidgetState extends State<LyricWidget> {
   }
 
   _lyricBuild(BuildContext context) {
-    if (widget.lyric == null) {
-      return const Center(
+    if (widget.lyric == null || widget.lyric!.isEmpty) {
+      return Center(
         child: Text(
           '暂无歌词',
-          style: TextStyle(color: Colors.white),
+          style: lyricUI.getOtherMainTextStyle(),
         ),
       );
     }
