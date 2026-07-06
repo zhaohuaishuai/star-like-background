@@ -38,7 +38,8 @@ class _LyricWidgetState extends State<LyricWidget> {
   @override
   void initState() {
     super.initState();
-    if (widget.lrc != null || widget.assLyric != null) {
+    if ((widget.lrc != null && widget.lrc!.isNotEmpty) ||
+        widget.assLyric != null) {
       isLRC = true;
       _initLyricModel();
       initEvent();
@@ -89,7 +90,9 @@ class _LyricWidgetState extends State<LyricWidget> {
   @override
   void didUpdateWidget(covariant LyricWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.lrc != null && oldWidget.lrc != widget.lrc) {
+    if (widget.lrc != null &&
+        widget.lrc!.isNotEmpty &&
+        oldWidget.lrc != widget.lrc) {
       isLRC = true;
       _initLyricModel();
       refreshLyric();
