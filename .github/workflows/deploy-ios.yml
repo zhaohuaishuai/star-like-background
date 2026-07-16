@@ -92,15 +92,24 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build IPA (flutter build ipa)
+      - name: Build and package IPA
         run: |
           BUILD_NUMBER="${{ github.run_number }}"
           if [ -n "${{ inputs.build_number }}" ]; then
             BUILD_NUMBER="${{ inputs.build_number }}"
           fi
-          flutter build ipa \
-            --build-number=$BUILD_NUMBER \
-            --export-options-plist=ios/ExportOptions.plist
+          # Build the .app (codesigned by xcodebuild with Manual settings)
+          export FLUTTER_BUILD_NUMBER=$BUILD_NUMBER
+          flutter build ios --release
+          
+          # Manually create IPA (bypass xcodebuild -exportArchive)
+          mkdir -p build/ios/ipa/Payload
+          cp -r build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
+          cd build/ios/ipa
+          zip -r star_top237.ipa Payload/
+          cd ../../..
+          echo "IPA created at: $(find build -name '*.ipa' -type f)"
+          ls -lh build/ios/ipa/
           
       - name: Find IPA
         run: |
