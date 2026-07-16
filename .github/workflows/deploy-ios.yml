@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VERSION: "stable"
+  FLUTTER_VERSION: "3.22.3"
 
 jobs:
   build-and-deploy:
