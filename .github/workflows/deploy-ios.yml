@@ -45,9 +45,16 @@ jobs:
 
           echo "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" /dev/stdin <<< "$(security cms -D -i profile.mobileprovision)")
-          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
-          echo "Installed provisioning profile: $UUID"
+          security cms -D -i profile.mobileprovision -o /tmp/profile.plist 2>/dev/null
+          UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" /tmp/profile.plist 2>/dev/null)
+          NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" /tmp/profile.plist 2>/dev/null)
+          if [ -z "$UUID" ]; then
+            echo "Warning: Could not extract UUID, installing as profile.mobileprovision"
+            cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+          else
+            cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
+            echo "Installed: $NAME (UUID: $UUID)"
+          fi
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
