@@ -710,7 +710,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = star.top237;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				PROVISIONING_PROFILE_SPECIFIER = "startop237";
+				PROVISIONING_PROFILE_SPECIFIER = "star.top237";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
