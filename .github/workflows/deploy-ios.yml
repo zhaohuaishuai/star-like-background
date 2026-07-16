@@ -92,22 +92,15 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Archive (flutter build ios --release)
+      - name: Build IPA (flutter build ipa)
         run: |
           BUILD_NUMBER="${{ github.run_number }}"
           if [ -n "${{ inputs.build_number }}" ]; then
             BUILD_NUMBER="${{ inputs.build_number }}"
           fi
-          export FLUTTER_BUILD_NUMBER=$BUILD_NUMBER
-          flutter build ios --release --no-codesign
-          
-      - name: Export IPA (xcodebuild)
-        run: |
-          xcodebuild -exportArchive \
-            -archivePath build/ios/archive/Runner.xcarchive \
-            -exportPath build/ios/ipa \
-            -exportOptionsPlist ios/ExportOptions.plist \
-            -allowProvisioningUpdates
+          flutter build ipa \
+            --export-method app-store \
+            --build-number=$BUILD_NUMBER
           
       - name: Find IPA
         run: |
