@@ -92,24 +92,28 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build iOS IPA (App Store)
+      - name: Archive (flutter build ios --release)
         run: |
           BUILD_NUMBER="${{ github.run_number }}"
           if [ -n "${{ inputs.build_number }}" ]; then
             BUILD_NUMBER="${{ inputs.build_number }}"
           fi
-          flutter build ipa \
-            --build-number=$BUILD_NUMBER \
-            --export-options-plist=ios/ExportOptions.plist
+          export FLUTTER_BUILD_NUMBER=$BUILD_NUMBER
+          flutter build ios --release --no-codesign
+          
+      - name: Export IPA (xcodebuild)
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -exportPath build/ios/ipa \
+            -exportOptionsPlist ios/ExportOptions.plist \
+            -allowProvisioningUpdates
           
       - name: Find IPA
         run: |
           echo "=== Build output ==="
-          find build -name "*.ipa" -type f 2>/dev/null || echo "No ipa found in build/"
-          echo "=== build/ios/ipa ==="
-          ls -la build/ios/ipa/ 2>/dev/null || echo "directory not found"
-          echo "=== build/ios ==="
-          ls -la build/ios/ 2>/dev/null || echo "directory not found"
+          find build -name "*.ipa" -type f 2>/dev/null || echo "No ipa found"
+          ls -la build/ios/ipa/ 2>/dev/null || echo "build/ios/ipa/ not found"
 
       - name: Upload to App Store Connect
         run: |
