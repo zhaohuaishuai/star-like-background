@@ -101,10 +101,19 @@ jobs:
           flutter build ipa \
             --export-method app-store \
             --build-number=$BUILD_NUMBER
+          
+      - name: Find IPA
+        run: |
+          echo "=== Build output ==="
+          find build -name "*.ipa" -type f 2>/dev/null || echo "No ipa found in build/"
+          echo "=== build/ios/ipa ==="
+          ls -la build/ios/ipa/ 2>/dev/null || echo "directory not found"
+          echo "=== build/ios ==="
+          ls -la build/ios/ 2>/dev/null || echo "directory not found"
 
       - name: Upload to App Store Connect
         run: |
-          IPA_PATH=$(ls build/ios/ipa/*.ipa 2>/dev/null | head -1)
+          IPA_PATH=$(find build -name "*.ipa" -type f 2>/dev/null | head -1)
           if [ -z "$IPA_PATH" ]; then
             echo "IPA file not found"
             exit 1
