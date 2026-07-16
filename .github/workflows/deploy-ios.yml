@@ -32,22 +32,22 @@ jobs:
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          # Create temporary keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 3600 build.keychain
 
-          # Import distribution certificate
           echo "$BUILD_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
           security import certificate.p12 -k build.keychain \
             -P "$P12_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list \
             -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
-          # Install provisioning profile
           echo "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+          UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" /dev/stdin <<< "$(security cms -D -i profile.mobileprovision)")
+          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
+          echo "Installed provisioning profile: $UUID"
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
