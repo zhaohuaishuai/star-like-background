@@ -55,13 +55,10 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - name: Install dependencies
-        run: |
-          cd app
-          flutter pub get
+        run: flutter pub get
 
       - name: Build iOS IPA (App Store)
         run: |
-          cd app
           BUILD_NUMBER="${{ github.run_number }}"
           if [ -n "${{ inputs.build_number }}" ]; then
             BUILD_NUMBER="${{ inputs.build_number }}"
@@ -72,7 +69,7 @@ jobs:
 
       - name: Upload to App Store Connect
         run: |
-          IPA_PATH=$(ls app/build/ios/ipa/*.ipa 2>/dev/null | head -1)
+          IPA_PATH=$(ls build/ios/ipa/*.ipa 2>/dev/null | head -1)
           if [ -z "$IPA_PATH" ]; then
             echo "IPA file not found"
             exit 1
@@ -89,5 +86,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: iOS-IPA
-          path: app/build/ios/ipa/*.ipa
+          path: build/ios/ipa/*.ipa
           if-no-files-found: error
