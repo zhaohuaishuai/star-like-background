@@ -43,18 +43,27 @@ jobs:
           security set-key-partition-list \
             -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
-          echo "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          security cms -D -i profile.mobileprovision -o /tmp/profile.plist 2>/dev/null
-          UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" /tmp/profile.plist 2>/dev/null)
-          NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" /tmp/profile.plist 2>/dev/null)
-          if [ -z "$UUID" ]; then
-            echo "Warning: Could not extract UUID, installing as profile.mobileprovision"
-            cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+          PROFILE_DIR=~/Library/MobileDevice/Provisioning\ Profiles
+          mkdir -p "$PROFILE_DIR"
+          echo "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode > "$PROFILE_DIR/build_profile.mobileprovision"
+          echo "Profile file size: $(wc -c < "$PROFILE_DIR/build_profile.mobileprovision") bytes"
+          
+          # Debug: show profile details
+          security cms -D -i "$PROFILE_DIR/build_profile.mobileprovision" -o /tmp/profile.plist 2>/dev/null || true
+          if [ -f /tmp/profile.plist ]; then
+            UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" /tmp/profile.plist 2>/dev/null || echo "unknown")
+            NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" /tmp/profile.plist 2>/dev/null || echo "unknown")
+            TEAM=$(/usr/libexec/PlistBuddy -c "Print :Entitlements:com.apple.developer.team-identifier" /tmp/profile.plist 2>/dev/null || echo "unknown")
+            echo "Profile UUID: $UUID"
+            echo "Profile Name: $NAME"
+            echo "Team ID: $TEAM"
+            # Rename by UUID for consistency
+            cp "$PROFILE_DIR/build_profile.mobileprovision" "$PROFILE_DIR/$UUID.mobileprovision" 2>/dev/null || true
           else
-            cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
-            echo "Installed: $NAME (UUID: $UUID)"
+            echo "Warning: could not decode provisioning profile"
           fi
+          echo "Installed profiles:"
+          ls -la "$PROFILE_DIR/" 2>/dev/null || echo "  (empty)"
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
