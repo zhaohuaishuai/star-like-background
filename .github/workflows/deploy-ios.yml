@@ -99,7 +99,6 @@ jobs:
             BUILD_NUMBER="${{ inputs.build_number }}"
           fi
           flutter build ipa \
-            
             --build-number=$BUILD_NUMBER \
             --export-options-plist=ios/ExportOptions.plist
           
