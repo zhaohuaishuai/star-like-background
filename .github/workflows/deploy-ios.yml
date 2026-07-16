@@ -99,8 +99,8 @@ jobs:
             BUILD_NUMBER="${{ inputs.build_number }}"
           fi
           flutter build ipa \
-            --export-method app-store \
-            --build-number=$BUILD_NUMBER
+            --build-number=$BUILD_NUMBER \
+            --export-options-plist=ios/ExportOptions.plist
           
       - name: Find IPA
         run: |

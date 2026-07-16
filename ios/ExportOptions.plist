@@ -4,11 +4,5 @@
 <dict>
 	<key>method</key>
 	<string>app-store</string>
-	<key>teamID</key>
-	<string>N272DS5A9K</string>
-	<key>signingStyle</key>
-	<string>manual</string>
-	<key>signingCertificate</key>
-	<string>iPhone Distribution</string>
 </dict>
 </plist>
