@@ -253,8 +253,18 @@ class SearchPage extends GetView<SearchPageController> {
     }
     final title = _buildTitle('按经文目录搜索 ${chapterDict.length}条'.tr);
     final list = SliverList.builder(
-      itemBuilder: (context, index) { 
-        return ListTile(title: Text(chapterDict[index]),onTap: ()=>controller.toBible(chapterDict[index]),);
+      itemBuilder: (context, index) {
+        // 添加模式下点击经文目录条目直接回调 onSelected 请求添加接口，否则跳转经文内容页
+        return ListTile(
+          title: Text(chapterDict[index]),
+          onTap: () {
+            if (isPickeMode) {
+              onSelected?.call(chapterDict[index]);
+              return;
+            }
+            controller.toBible(chapterDict[index]);
+          },
+        );
       },
       itemCount:chapterDict.length,
     );
@@ -294,7 +304,14 @@ class SearchPage extends GetView<SearchPageController> {
                  return ListTile(
                   title: Text(id),
                   subtitle: Text.rich(span),
-                  onTap: ()=>controller.toBible(id)
+                  // 添加模式下点击经文条目直接回调 onSelected 请求添加接口，否则跳转经文内容页
+                  onTap: () {
+                    if (isPickeMode) {
+                      onSelected?.call(id);
+                      return;
+                    }
+                    controller.toBible(id);
+                  },
                  );
 
 
