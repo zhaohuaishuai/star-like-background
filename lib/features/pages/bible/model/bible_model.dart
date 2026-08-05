@@ -298,44 +298,43 @@ class BibleModel extends ChangeNotifier {
 
   bool get isSelect => verseNumbers.isNotEmpty;
 
-  /// 外部跳转进入时需闪烁高亮的节集合
+  /// 外部跳转进入时需渐显渐隐高亮的节集合
   List<int> _flashVerses = [];
   List<int> get flashVerses => _flashVerses;
 
-  /// 虚线选中框当前是否可见（闪烁切换用）
-  bool _flashVisible = false;
-  bool get flashVisible => _flashVisible;
+  /// 虚线框透明度（渐显渐隐动画驱动，仅动画期间变化，避免全量重建）
+  final ValueNotifier<double> flashOpacity = ValueNotifier(0);
 
-  /// 闪烁定时器
+  /// 渐显渐隐动画控制器（由 BiblePage 注入，需 TickerProvider 驱动）
+  AnimationController? flashController;
+
+  /// 结束定时器
   Timer? _flashTimer;
 
-  /// 启动节闪烁高亮：先等滚动定位完成，再每 200ms 切换一次虚线框可见状态，
+  /// 启动节渐显渐隐高亮：先等滚动定位完成，再以 600ms 周期淡入淡出循环，
   /// 共 3 秒后自动清空并消失
   Future<void> startFlash(List<int> verses) async {
     _cancelFlash();
     _flashVerses = List.of(verses);
-    _flashVisible = true;
-    // 等待滚动动画基本完成后再开始闪烁，避免虚线框随滚动移动
+    // 等待滚动动画基本完成后再开始动画，避免虚线框随滚动移动
     await Future.delayed(const Duration(milliseconds: 200));
     if (_flashVerses.isEmpty) return; // 等待期间可能已被取消
-    _flashTimer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
-      _flashVisible = !_flashVisible;
-      notifyListeners();
-      if (timer.tick >= 15) {
-        timer.cancel();
-        _flashVerses = [];
-        _flashVisible = false;
-        notifyListeners();
-      }
+    flashController?.repeat(reverse: true);
+    // 3 秒后结束渐显渐隐动画并清理
+    _flashTimer = Timer(const Duration(seconds: 3), () {
+      _cancelFlash();
     });
   }
 
-  /// 取消闪烁高亮并清理状态
+  /// 取消渐显渐隐高亮并清理状态
   void _cancelFlash() {
     _flashTimer?.cancel();
     _flashTimer = null;
+    flashController?.stop();
+    flashController?.value = 0;
+    flashOpacity.value = 0;
     _flashVerses = [];
-    _flashVisible = false;
+    notifyListeners();
   }
 
   /// 目录视图数据

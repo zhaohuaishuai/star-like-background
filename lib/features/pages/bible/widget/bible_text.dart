@@ -16,9 +16,8 @@ class BibleText extends StatelessWidget {
   Widget build(BuildContext context) {
     BibleModel bibleModel = context.watch<BibleModel>();
     bool selected = bibleModel.verseNumbers.contains(bibleContent.VerseSN);
-    // 外部跳转进入时的闪烁高亮：命中闪烁节集合且当前处于可见相位
-    bool flashing = bibleModel.flashVerses.contains(bibleContent.VerseSN) &&
-        bibleModel.flashVisible;
+    // 外部跳转进入时的渐显渐隐高亮：命中闪烁节集合时用虚线框包裹
+    bool flashing = bibleModel.flashVerses.contains(bibleContent.VerseSN);
 
     Widget text = Align(
       alignment: Alignment.topLeft,
@@ -28,10 +27,17 @@ class BibleText extends StatelessWidget {
         ),
     );
 
-    // 闪烁相位可见时用虚线选中框包裹
+    // 渐显渐隐动画驱动虚线框透明度，仅局部重建避免整页频繁刷新
     if (flashing) {
-      text = CustomPaint(
-        painter: const DashedBorderPainter(color: Colors.red),
+      text = ValueListenableBuilder<double>(
+        valueListenable: bibleModel.flashOpacity,
+        builder: (context, opacity, child) => Opacity(
+          opacity: opacity,
+          child: CustomPaint(
+            painter: const DashedBorderPainter(color: Colors.red),
+            child: child,
+          ),
+        ),
         child: text,
       );
     }

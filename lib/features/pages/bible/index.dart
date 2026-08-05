@@ -13,15 +13,27 @@ class BiblePage extends StatefulWidget {
   State<StatefulWidget> createState() => BiblePageState();
 }
 
-class BiblePageState extends State<BiblePage> {
+class BiblePageState extends State<BiblePage>
+    with SingleTickerProviderStateMixin {
   final BibleProvider api = BibleProvider();
   List<BiblePanelVo> biblePanelVoList = [];
   late final BibleModel bibleController;
+
+  /// 渐显渐隐动画控制器：600ms 一个淡入淡出周期，循环播放
+  late final AnimationController flashController;
 
   @override
   void initState() {
     super.initState();
     bibleController = BibleModel(arguments: Get.arguments);
+    flashController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..addListener(() {
+        // 动画帧驱动虚线框透明度，仅通知监听该值的组件
+        bibleController.flashOpacity.value = flashController.value;
+      });
+    bibleController.flashController = flashController;
   }
 
   @override
@@ -40,6 +52,7 @@ class BiblePageState extends State<BiblePage> {
 
   @override
   void dispose() {
+    flashController.dispose();
     bibleController.dispose();
     super.dispose();
   }
