@@ -259,7 +259,8 @@ class SearchPage extends GetView<SearchPageController> {
           title: Text(chapterDict[index]),
           onTap: () {
             if (isPickeMode) {
-              onSelected?.call(chapterDict[index]);
+              // 经文条目需拼接类型后缀 |1，与歌单存储格式 id|type 保持一致
+              onSelected?.call('${chapterDict[index]}|1');
               return;
             }
             controller.toBible(chapterDict[index]);
@@ -307,7 +308,8 @@ class SearchPage extends GetView<SearchPageController> {
                   // 添加模式下点击经文条目直接回调 onSelected 请求添加接口，否则跳转经文内容页
                   onTap: () {
                     if (isPickeMode) {
-                      onSelected?.call(id);
+                      // 经文条目需拼接类型后缀 |1，与歌单存储格式 id|type 保持一致
+                      onSelected?.call('$id|1');
                       return;
                     }
                     controller.toBible(id);
