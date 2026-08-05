@@ -27,18 +27,23 @@ class BibleText extends StatelessWidget {
         ),
     );
 
-    // 渐显渐隐动画驱动虚线框透明度，仅局部重建避免整页频繁刷新
+    // 渐显渐隐动画只作用于虚线框图层，文字保持不透明
     if (flashing) {
-      text = ValueListenableBuilder<double>(
-        valueListenable: bibleModel.flashOpacity,
-        builder: (context, opacity, child) => Opacity(
-          opacity: opacity,
-          child: CustomPaint(
-            painter: const DashedBorderPainter(color: Colors.red),
-            child: child,
+      text = Stack(
+        children: [
+          text,
+          Positioned.fill(
+            child: ValueListenableBuilder<double>(
+              valueListenable: bibleModel.flashOpacity,
+              builder: (context, opacity, child) => Opacity(
+                opacity: opacity,
+                child: const CustomPaint(
+                  painter: DashedBorderPainter(color: Colors.red),
+                ),
+              ),
+            ),
           ),
-        ),
-        child: text,
+        ],
       );
     }
 
