@@ -308,28 +308,22 @@ class BibleModel extends ChangeNotifier {
   /// 渐显渐隐动画控制器（由 BiblePage 注入，需 TickerProvider 驱动）
   AnimationController? flashController;
 
-  /// 结束定时器
-  Timer? _flashTimer;
-
-  /// 启动节渐显渐隐高亮：先等滚动定位完成，再以 600ms 周期淡入淡出循环，
-  /// 共 3 秒后自动清空并消失
+  /// 启动节渐显渐隐高亮：先等滚动定位完成，再播放一次
+  /// 渐显→保持→渐隐 的 3 秒动画，播完后由动画状态回调清理
   Future<void> startFlash(List<int> verses) async {
     _cancelFlash();
     _flashVerses = List.of(verses);
     // 等待滚动动画基本完成后再开始动画，避免虚线框随滚动移动
     await Future.delayed(const Duration(milliseconds: 200));
     if (_flashVerses.isEmpty) return; // 等待期间可能已被取消
-    flashController?.repeat(reverse: true);
-    // 3 秒后结束渐显渐隐动画并清理
-    _flashTimer = Timer(const Duration(seconds: 3), () {
-      _cancelFlash();
-    });
+    flashController?.forward(from: 0);
   }
+
+  /// 结束渐显渐隐高亮（动画播完时调用）
+  void clearFlash() => _cancelFlash();
 
   /// 取消渐显渐隐高亮并清理状态
   void _cancelFlash() {
-    _flashTimer?.cancel();
-    _flashTimer = null;
     flashController?.stop();
     flashController?.value = 0;
     flashOpacity.value = 0;
