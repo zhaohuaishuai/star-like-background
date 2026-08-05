@@ -309,7 +309,7 @@ class BibleModel extends ChangeNotifier {
   /// 闪烁定时器
   Timer? _flashTimer;
 
-  /// 启动节闪烁高亮：先等滚动定位完成，再每 500ms 切换一次虚线框可见状态，
+  /// 启动节闪烁高亮：先等滚动定位完成，再每 200ms 切换一次虚线框可见状态，
   /// 共 3 秒后自动清空并消失
   Future<void> startFlash(List<int> verses) async {
     _cancelFlash();
@@ -318,10 +318,10 @@ class BibleModel extends ChangeNotifier {
     // 等待滚动动画基本完成后再开始闪烁，避免虚线框随滚动移动
     await Future.delayed(const Duration(milliseconds: 200));
     if (_flashVerses.isEmpty) return; // 等待期间可能已被取消
-    _flashTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+    _flashTimer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
       _flashVisible = !_flashVisible;
       notifyListeners();
-      if (timer.tick >= 6) {
+      if (timer.tick >= 15) {
         timer.cancel();
         _flashVerses = [];
         _flashVisible = false;

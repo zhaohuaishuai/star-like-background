@@ -31,7 +31,7 @@ class BibleText extends StatelessWidget {
     // 闪烁相位可见时用虚线选中框包裹
     if (flashing) {
       text = CustomPaint(
-        painter: const DashedBorderPainter(color: Colors.blue),
+        painter: const DashedBorderPainter(color: Colors.red),
         child: text,
       );
     }
