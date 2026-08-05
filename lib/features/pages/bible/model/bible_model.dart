@@ -63,9 +63,11 @@ class BibleModel extends ChangeNotifier {
           debugPrint('bible model init id:$id v:$v c:$c vss:$vss');
           _volumeSN = v;
           _chapterSN = c;
-          _verseNumbers = vss;
+          // 外部跳转进入：不写入 verseNumbers（避免触发下划线选中与底部操作栏），
+          // 改为滚动到目标节并启动虚线框闪烁高亮
           if (vss.isNotEmpty) {
             scrollToIndex(vss.first - 1);
+            startFlash(vss);
           }
           return;
         }
@@ -296,6 +298,46 @@ class BibleModel extends ChangeNotifier {
 
   bool get isSelect => verseNumbers.isNotEmpty;
 
+  /// 外部跳转进入时需闪烁高亮的节集合
+  List<int> _flashVerses = [];
+  List<int> get flashVerses => _flashVerses;
+
+  /// 虚线选中框当前是否可见（闪烁切换用）
+  bool _flashVisible = false;
+  bool get flashVisible => _flashVisible;
+
+  /// 闪烁定时器
+  Timer? _flashTimer;
+
+  /// 启动节闪烁高亮：先等滚动定位完成，再每秒切换一次虚线框可见状态，
+  /// 共 5 秒后自动清空并消失
+  Future<void> startFlash(List<int> verses) async {
+    _cancelFlash();
+    _flashVerses = List.of(verses);
+    _flashVisible = true;
+    // 等待滚动动画基本完成后再开始闪烁，避免虚线框随滚动移动
+    await Future.delayed(const Duration(milliseconds: 200));
+    if (_flashVerses.isEmpty) return; // 等待期间可能已被取消
+    _flashTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _flashVisible = !_flashVisible;
+      notifyListeners();
+      if (timer.tick >= 5) {
+        timer.cancel();
+        _flashVerses = [];
+        _flashVisible = false;
+        notifyListeners();
+      }
+    });
+  }
+
+  /// 取消闪烁高亮并清理状态
+  void _cancelFlash() {
+    _flashTimer?.cancel();
+    _flashTimer = null;
+    _flashVerses = [];
+    _flashVisible = false;
+  }
+
   /// 目录视图数据
   static List<BiblePanelVo> biblePanelVoList = [];
 
@@ -424,6 +466,7 @@ class BibleModel extends ChangeNotifier {
 
   @override
   dispose() {
+    _cancelFlash();
     _completionSubscription?.cancel();
     // db?.close();
     super.dispose();
