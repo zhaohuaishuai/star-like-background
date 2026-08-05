@@ -1,0 +1,146 @@
+name: iOS Build & Deploy (Flutter)
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: "Build number override (leave empty for auto)"
+        required: false
+        type: string
+  push:
+    branches: [main, master]
+
+concurrency:
+  group: ios-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: "3.22.3"
+
+jobs:
+  build-and-deploy:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Code Signing
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 3600 build.keychain
+
+          echo "$BUILD_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
+          security import certificate.p12 -k build.keychain \
+            -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list \
+            -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+
+          PROFILE_DIR=~/Library/MobileDevice/Provisioning\ Profiles
+          mkdir -p "$PROFILE_DIR"
+          echo "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode > "$PROFILE_DIR/build_profile.mobileprovision"
+          echo "Profile file size: $(wc -c < "$PROFILE_DIR/build_profile.mobileprovision") bytes"
+          
+          # Debug: show profile details
+          security cms -D -i "$PROFILE_DIR/build_profile.mobileprovision" -o /tmp/profile.plist 2>/dev/null || true
+          if [ -f /tmp/profile.plist ]; then
+            UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" /tmp/profile.plist 2>/dev/null || echo "unknown")
+            NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" /tmp/profile.plist 2>/dev/null || echo "unknown")
+            TEAM=$(/usr/libexec/PlistBuddy -c "Print :Entitlements:com.apple.developer.team-identifier" /tmp/profile.plist 2>/dev/null || echo "unknown")
+            echo "Profile UUID: $UUID"
+            echo "Profile Name: $NAME"
+            echo "Team ID: $TEAM"
+            # Rename by UUID for consistency
+            cp "$PROFILE_DIR/build_profile.mobileprovision" "$PROFILE_DIR/$UUID.mobileprovision" 2>/dev/null || true
+          else
+            echo "Warning: could not decode provisioning profile"
+          fi
+          echo "Installed profiles:"
+          ls -la "$PROFILE_DIR/" 2>/dev/null || echo "  (empty)"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Cache Flutter pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: flutter-pub-${{ hashFiles('pubspec.lock') }}
+          restore-keys: |
+            flutter-pub-
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: ios/Pods
+          key: pods-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: |
+            pods-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build and package IPA
+        run: |
+          BUILD_NUMBER="${{ github.run_number }}"
+          if [ -n "${{ inputs.build_number }}" ]; then
+            BUILD_NUMBER="${{ inputs.build_number }}"
+          fi
+          # Build the .app (codesigned by xcodebuild with Manual settings)
+          export FLUTTER_BUILD_NUMBER=$BUILD_NUMBER
+          flutter build ios --release
+          
+          # Manually create IPA (bypass xcodebuild -exportArchive)
+          mkdir -p build/ios/ipa/Payload
+          cp -r build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
+          cd build/ios/ipa
+          zip -r star_top237.ipa Payload/
+          cd ../../..
+          echo "IPA created at: $(find build -name '*.ipa' -type f)"
+          ls -lh build/ios/ipa/
+          
+      - name: Find IPA
+        run: |
+          echo "=== Build output ==="
+          find build -name "*.ipa" -type f 2>/dev/null || echo "No ipa found"
+          ls -la build/ios/ipa/ 2>/dev/null || echo "build/ios/ipa/ not found"
+
+      - name: Upload to App Store Connect
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_BASE64: ${{ secrets.APPSTORE_API_KEY_BASE64 }}
+        run: |
+          IPA_PATH=$(find build -name "*.ipa" -type f 2>/dev/null | head -1)
+          if [ -z "$IPA_PATH" ]; then
+            echo "IPA file not found"
+            exit 1
+          fi
+          mkdir -p ~/private_keys
+          echo "$APPSTORE_API_KEY_BASE64" | base64 --decode > ~/private_keys/AuthKey_$APPSTORE_KEY_ID.p8
+          echo "Uploading: $IPA_PATH"
+          xcrun altool --upload-app \
+            -f "$IPA_PATH" \
+            -t ios \
+            --apiKey $APPSTORE_KEY_ID \
+            --apiIssuer $APPSTORE_ISSUER_ID \
+            --verbose
+
+      - name: Upload IPA as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iOS-IPA
+          path: build/ios/ipa/*.ipa
+          if-no-files-found: error
