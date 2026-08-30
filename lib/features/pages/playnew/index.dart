@@ -65,6 +65,7 @@ class PlayNewPage extends GetWidget<PlayNewController> {
                               lyric: controller.lyric,
                               lrc: controller.lrc,
                               assLyric: controller.assLyric,
+                              fontSize: controller.lyricFontSize.value,
                             ))
                       ],
                     ))),

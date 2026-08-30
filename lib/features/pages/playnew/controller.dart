@@ -9,6 +9,7 @@ import 'package:m/data/module/sgb_data.dart';
  
 import 'package:m/data/services/sgb.dart';
 import 'package:m/data/services/star_player.dart';
+import 'package:m/features/pages/playnew/widget/play_lyric/lyric_ui.dart';
 import 'package:photo_view/photo_view.dart';
 
 class PlayNewController extends FullLifeCycleController with FullLifeCycleMixin {
@@ -18,6 +19,9 @@ class PlayNewController extends FullLifeCycleController with FullLifeCycleMixin 
   RxBool isPlaying = false.obs;
   RxDouble currentDuration = 0.0.obs;
   Rx<PhotoViewScaleState> scaleState = Rx<PhotoViewScaleState>(PhotoViewScaleState.initial);
+
+  /// 歌词字体大小（普通行字号），默认 22，进入播放页时从本地存储读取
+  final RxDouble lyricFontSize = RxDouble(LyricUI.cDefaultSize);
 
 
  
@@ -50,7 +54,12 @@ class PlayNewController extends FullLifeCycleController with FullLifeCycleMixin 
   void onInit() async {
     super.onInit();
 
-  
+    // 读取本地存储的歌词字号，保证设置页的修改生效
+    final double? savedLyricFontSize = await box.readDouble(LyricUI.lyricFontSizeKey);
+    if (savedLyricFontSize != null) {
+      lyricFontSize.value = savedLyricFontSize;
+    }
+
     debugPrint("id: ${Get.parameters['id']}");
     debugPrint("type: ${Get.parameters['type']}");
     debugPrint("gedanid: ${Get.parameters['gedanid']}");

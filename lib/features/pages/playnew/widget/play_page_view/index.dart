@@ -168,12 +168,13 @@ class _PlayPageViewState extends State<PlayPageView>
       child: LayoutBuilder(
         builder: (context, constraints) {
           if (ads.playTarget.value == PlayTargetEnum.banZou) {
-            return LyricWidget(
-              size: Size(constraints.maxWidth, constraints.maxHeight),
-              lyric: ads.currentSong.value?.dmtUrl.lyric,
-              lrc: ads.currentSong.value?.dmtUrl.lrc,
-              assLyric: ads.currentSong.value?.dmtUrl.assLyric,
-            );
+            return Obx(() => LyricWidget(
+                  size: Size(constraints.maxWidth, constraints.maxHeight),
+                  lyric: ads.currentSong.value?.dmtUrl.lyric,
+                  lrc: ads.currentSong.value?.dmtUrl.lrc,
+                  assLyric: ads.currentSong.value?.dmtUrl.assLyric,
+                  fontSize: playNewController.lyricFontSize.value,
+                ));
           }
 
           return StreamBuilder<bool>(

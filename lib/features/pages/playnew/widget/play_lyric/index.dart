@@ -16,8 +16,14 @@ class LyricWidget extends StatefulWidget {
   final String? lrc; // 标准歌词
   final String? assLyric; // 高级歌词
   final Size? size; // 歌词大小
+  final double fontSize; // 歌词字体大小（普通行），当前行自动放大 4px
   const LyricWidget(
-      {super.key, this.lyric, this.lrc, this.assLyric, this.size});
+      {super.key,
+      this.lyric,
+      this.lrc,
+      this.assLyric,
+      this.size,
+      this.fontSize = LyricUI.cDefaultSize});
 
   @override
   State<LyricWidget> createState() => _LyricWidgetState();
@@ -38,12 +44,24 @@ class _LyricWidgetState extends State<LyricWidget> {
   @override
   void initState() {
     super.initState();
+    lyricUI = _buildLyricUI(widget.fontSize);
     if ((widget.lrc != null && widget.lrc!.isNotEmpty) ||
         widget.assLyric != null) {
       isLRC = true;
       _initLyricModel();
       initEvent();
     }
+  }
+
+  /// 根据字号构建歌词 UI 实例（当前行比普通行大 4px）
+  LyricUI _buildLyricUI(double fontSize) {
+    final otherSize =
+        (fontSize - 4).clamp(LyricUI.fontSizeMin, LyricUI.fontSizeMax);
+    return LyricUI(
+      highlight: lyricUI.highlight,
+      defaultSize: fontSize,
+      otherMainSize: otherSize.toDouble(),
+    );
   }
 
   void initEvent() {
@@ -90,6 +108,12 @@ class _LyricWidgetState extends State<LyricWidget> {
   @override
   void didUpdateWidget(covariant LyricWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
+    // 字号变化时重建歌词 UI 并刷新
+    if (widget.fontSize != oldWidget.fontSize) {
+      lyricUI = _buildLyricUI(widget.fontSize);
+      setState(() {});
+      return;
+    }
     if (widget.lrc != null &&
         widget.lrc!.isNotEmpty &&
         oldWidget.lrc != widget.lrc) {
