@@ -81,7 +81,26 @@ class PlayNewPage extends GetWidget<PlayNewController> {
               alignment: Alignment.center,
               child: _selectPageBuilder(context),
             ),
-          )
+          ),
+          // 歌词页右下角歌词字号调节按钮
+          Obx(() => controller.currentLyricIndex.value == 2
+              ? Positioned(
+                  right: StarThemeData.spacing,
+                  bottom: StarThemeData.spacing,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.black.withOpacity(0.2),
+                    ),
+                    child: LyricFontSizeButton(
+                      fontSize: controller.lyricFontSize.value,
+                      iconColor: Colors.white.withOpacity(0.85),
+                      onChanged: (value) =>
+                          controller.updateLyricFontSize(value),
+                    ),
+                  ),
+                )
+              : const SizedBox()),
         ],
       ),
     );
@@ -176,14 +195,6 @@ class PlayNewPage extends GetWidget<PlayNewController> {
               ),
             )),
         const Spacer(),
-        // 歌词页显示歌词字号调节按钮
-        Obx(() => controller.currentLyricIndex.value == 2
-            ? LyricFontSizeButton(
-                fontSize: controller.lyricFontSize.value,
-                iconColor: iconColor,
-                onChanged: (value) => controller.updateLyricFontSize(value),
-              )
-            : const SizedBox()),
         PopupMenuButton(
             icon: Icon(
               Icons.share_outlined,
