@@ -35,11 +35,12 @@ class LyricUI extends UINetease {
   TextStyle getPlayingMainTextStyle() => TextStyle(
         color: Get.isDarkMode ? Colors.white : Colors.black,
         fontSize: defaultSize,
+        fontWeight: FontWeight.bold,
       );
 
   @override
   TextStyle getOtherMainTextStyle() => TextStyle(
-        color: Get.isDarkMode ? Colors.white70 : Colors.black87,
+        color: Get.isDarkMode ? Colors.white54 : Colors.black54,
         fontSize: otherMainSize,
       );
 }
