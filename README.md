@@ -80,6 +80,5 @@ flutter pub run build_runner build
 
 
 ## ios打包
-使用github actions打包
-
+使用github actions打包 ios 。
 git subtree push --prefix=mobile-ui/app githup main
