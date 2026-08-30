@@ -212,7 +212,11 @@ class _LyricWidgetState extends State<LyricWidget> {
           title: Text(
             lyricList[index],
             textAlign: TextAlign.center,
-            style: lyricUI.getOtherMainTextStyle(),
+            // 普通歌词（非 LRC/卡拉OK）固定使用深色文字
+            style: TextStyle(
+              color: Colors.black87,
+              fontSize: lyricUI.otherMainSize,
+            ),
           ),
         );
       },
