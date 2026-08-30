@@ -6,6 +6,7 @@ import 'package:m/core/constants/constants.dart';
 import 'package:m/core/theme/theme_data.dart';
 
 import 'package:m/features/pages/playnew/controller.dart';
+import 'package:m/features/pages/playnew/widget/lyric_font_size.dart';
 import 'package:m/features/pages/playnew/widget/play_gepu/index.dart';
 import 'package:m/features/pages/playnew/widget/play_lyric/index.dart';
 import 'widget/play_page_view/index.dart';
@@ -175,6 +176,14 @@ class PlayNewPage extends GetWidget<PlayNewController> {
               ),
             )),
         const Spacer(),
+        // 歌词页显示歌词字号调节按钮
+        Obx(() => controller.currentLyricIndex.value == 2
+            ? LyricFontSizeButton(
+                fontSize: controller.lyricFontSize.value,
+                iconColor: iconColor,
+                onChanged: (value) => controller.updateLyricFontSize(value),
+              )
+            : const SizedBox()),
         PopupMenuButton(
             icon: Icon(
               Icons.share_outlined,

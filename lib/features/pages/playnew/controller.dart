@@ -105,6 +105,12 @@ class PlayNewController extends FullLifeCycleController with FullLifeCycleMixin 
     debugPrint('onReady');
   }
  
+  /// 更新歌词字号并持久化到本地存储
+  Future<void> updateLyricFontSize(double value) async {
+    lyricFontSize.value = value;
+    await box.writeDouble(LyricUI.lyricFontSizeKey, value);
+  }
+
   changePage(int value) {
     currentLyricIndex.value = value;
   }
