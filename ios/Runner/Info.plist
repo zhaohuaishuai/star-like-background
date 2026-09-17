@@ -52,5 +52,8 @@
 
 	<key>NSMicrophoneUsageDescription</key>
 	<string>本应用需要访问麦克风以优化音频播放性能</string>
+
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>本应用需要访问相册以选择歌单海报图片</string>
 </dict>
 </plist>

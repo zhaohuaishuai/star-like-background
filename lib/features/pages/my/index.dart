@@ -248,6 +248,34 @@ class MyPage extends GetWidget<MyController> {
       );
   }
 
+  /// 歌单列表左侧海报缩略图（无海报时显示默认图标）
+  Widget _buildSongListLeading(String? posterUrl) {
+    if (posterUrl != null && posterUrl.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          posterUrl,
+          width: 48,
+          height: 48,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stack) => const Icon(Icons.music_note),
+        ),
+      );
+    }
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: StarThemeData.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Icon(
+        Icons.music_note,
+        color: StarThemeData.primaryColor.withOpacity(0.6),
+      ),
+    );
+  }
+
   _buildMySongList() {
     return Obx(() {
       if (UserService.to.songList.isNotEmpty) {
@@ -286,6 +314,8 @@ class MyPage extends GetWidget<MyController> {
                         RouterUtils.toSongListDetail(
                             UserService.to.songList[index].id);
                       },
+                      leading: _buildSongListLeading(
+                          UserService.to.songList[index].posterUrl),
                       title: Text(UserService.to.songList[index].name),
                       subtitle:
                           Text('${UserService.to.songList[index].createTime}'),
@@ -321,7 +351,8 @@ class MyPage extends GetWidget<MyController> {
                               onTap: () {
                                 UserService.to.addSongList(
                                     UserService.to.songList[index].id,
-                                    UserService.to.songList[index].name);
+                                    UserService.to.songList[index].name,
+                                    UserService.to.songList[index].posterUrl);
                               },
                             ),
                           ];

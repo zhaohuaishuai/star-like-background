@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:m/core/theme/theme_data.dart';
 import 'package:m/core/utils/toast.dart';
@@ -184,12 +185,13 @@ class UserService extends GetxService {
     );
   }
 
-  addSongList([int? id, String? name = '']) async {
+  addSongList([int? id, String? name = '', String? posterUrl = '']) async {
     Get.dialog(
         barrierDismissible: false,
         AddSongListDialog(
           id: id,
           name: name,
+          posterUrl: posterUrl,
         ));
   }
 
@@ -271,8 +273,10 @@ class UserService extends GetxService {
     return completer.future;
   }
 
-  Future<bool> updateSongList({required int id, String? name, String? list}) {
-    return api.upSongList(id: '$id', name: name, list: list);
+  Future<bool> updateSongList(
+      {required int id, String? name, String? list, String? posterUrl}) {
+    return api.upSongList(
+        id: '$id', name: name, list: list, posterUrl: posterUrl);
   }
 
   Future<bool> addSongListItem(int id, String songId) async {
@@ -378,10 +382,16 @@ class _AddSongListBottomSheetState extends State<AddSongListBottomSheet> {
 class AddSongListDialog extends StatefulWidget {
   final int? id;
   final String? name;
+  final String? posterUrl;
   final VoidCallback? onSuccess;
   final VoidCallback? onCancel;
   const AddSongListDialog(
-      {super.key, this.id, this.name, this.onSuccess, this.onCancel});
+      {super.key,
+      this.id,
+      this.name,
+      this.posterUrl,
+      this.onSuccess,
+      this.onCancel});
 
   @override
   State<AddSongListDialog> createState() => _AddSongListDialogState();
@@ -390,10 +400,92 @@ class AddSongListDialog extends StatefulWidget {
 class _AddSongListDialogState extends State<AddSongListDialog> {
   late TextEditingController controller;
   UserProvider api = Get.put<UserProvider>(UserProvider());
+  final ImagePicker _picker = ImagePicker();
+
+  /// 歌单海报URL
+  String _posterUrl = '';
+
+  /// 是否正在上传海报
+  bool _uploading = false;
+
   @override
   void initState() {
     super.initState();
     controller = TextEditingController(text: widget.name);
+    _posterUrl = widget.posterUrl ?? '';
+  }
+
+  /// 选择并上传歌单海报
+  Future<void> _pickAndUploadPoster() async {
+    try {
+      final XFile? picked =
+          await _picker.pickImage(source: ImageSource.gallery);
+      if (picked == null) return;
+      setState(() => _uploading = true);
+      String? url = await api.uploadImage(picked);
+      if (!mounted) return;
+      if (url != null) {
+        setState(() {
+          _posterUrl = url;
+          _uploading = false;
+        });
+        Toast.showToast('海报上传成功'.tr);
+      } else {
+        setState(() => _uploading = false);
+        Toast.showToast('海报上传失败'.tr, ToastStatusEnum.error);
+      }
+    } catch (e) {
+      debugPrint('【选择图片失败】$e');
+      if (mounted) {
+        setState(() => _uploading = false);
+      }
+      Toast.showToast('海报上传失败'.tr, ToastStatusEnum.error);
+    }
+  }
+
+  /// 歌单海报预览区域
+  Widget _buildPosterPicker() {
+    return GestureDetector(
+      onTap: _uploading ? null : _pickAndUploadPoster,
+      child: Container(
+        width: double.infinity,
+        height: 90,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+              color: StarThemeData.primaryColor.withOpacity(0.4), width: 1),
+          color: StarThemeData.primaryColor.withOpacity(0.05),
+        ),
+        child: _posterUrl.isNotEmpty
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  _posterUrl,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    _uploading ? Icons.hourglass_top : Icons.add_photo_alternate,
+                    size: 28,
+                    color: StarThemeData.primaryColor.withOpacity(0.6),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _uploading ? '上传中...'.tr : '点击上传歌单海报'.tr,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: StarThemeData.primaryColor.withOpacity(0.6),
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
   }
 
   @override
@@ -402,21 +494,21 @@ class _AddSongListDialogState extends State<AddSongListDialog> {
       child: Container(
         alignment: Alignment.center,
         width: MediaQuery.of(Get.context!).size.width * 0.8,
-        height: 230,
+        height: 360,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           children: [
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Text(
               '请输入歌单名称'.tr,
               style: const TextStyle(
                 fontSize: 16,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             TextField(
               controller: controller,
               autofocus: true,
@@ -427,7 +519,9 @@ class _AddSongListDialogState extends State<AddSongListDialog> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+            _buildPosterPicker(),
+            const Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -447,10 +541,10 @@ class _AddSongListDialogState extends State<AddSongListDialog> {
 
                     bool success = false;
                     if (widget.id == null) {
-                      success = await api.addSongList(name);
+                      success = await api.addSongList(name, null, _posterUrl);
                     } else {
-                      success =
-                          await api.upSongList(id: '${widget.id!}', name: name);
+                      success = await api.upSongList(
+                          id: '${widget.id!}', name: name, posterUrl: _posterUrl);
                     }
 
                     if (success) {
@@ -464,7 +558,7 @@ class _AddSongListDialogState extends State<AddSongListDialog> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
           ],
         ),
       ),

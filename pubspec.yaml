@@ -50,6 +50,7 @@ dependencies:
   scrollable_positioned_list: ^0.2.2
   get_storage: ^2.1.1
   get: ^4.7.2
+  image_picker: ^1.1.2
 
   # 编译ios和android和web平台的包需要的依赖
   just_audio: ^0.9.41

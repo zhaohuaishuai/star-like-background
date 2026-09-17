@@ -18,6 +18,7 @@ UserSong _$UserSongFromJson(Map<String, dynamic> json) => UserSong(
       updateBy: json['updateBy'] as String?,
       updateTime: json['updateTime'] as String?,
       remark: json['remark'] as String?,
+      posterUrl: json['posterUrl'] as String?,
     );
 
 Map<String, dynamic> _$UserSongToJson(UserSong instance) => <String, dynamic>{
@@ -32,4 +33,5 @@ Map<String, dynamic> _$UserSongToJson(UserSong instance) => <String, dynamic>{
       'updateBy': instance.updateBy,
       'updateTime': instance.updateTime,
       'remark': instance.remark,
+      'posterUrl': instance.posterUrl,
     };

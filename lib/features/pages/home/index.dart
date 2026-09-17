@@ -349,6 +349,17 @@ class HomePage extends GetWidget<HomeController> {
   }
 
 // /我的歌单
+  /// 无海报时显示歌单名称的占位视图
+  Widget _buildSongListName(String name) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        name,
+        style: const TextStyle(fontSize: 16),
+      ),
+    );
+  }
+
   _mySongListBuild() {
     return SliverToBoxAdapter(
       child: Obx(() {
@@ -391,21 +402,57 @@ class HomePage extends GetWidget<HomeController> {
                         axisDirection: AxisDirection.down,
                         itemCount: UserService.to.songList.length,
                         itemBuilder: (context, index) {
+                          final song = UserService.to.songList[index];
+                          final hasPoster =
+                              song.posterUrl != null && song.posterUrl!.isNotEmpty;
                           return InkWell(
                             onTap: () {
-                              RouterUtils.toSongListDetail(
-                                  UserService.to.songList[index].id);
+                              RouterUtils.toSongListDetail(song.id);
                             },
                             child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: StarThemeData.spacing),
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    UserService.to.songList[index].name,
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                )),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: StarThemeData.spacing),
+                              child: hasPoster
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Stack(
+                                        fit: StackFit.expand,
+                                        children: [
+                                          Image.network(
+                                            song.posterUrl!,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error,
+                                                    stack) =>
+                                                _buildSongListName(song.name),
+                                          ),
+                                          Container(
+                                            alignment: Alignment.bottomLeft,
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                begin: Alignment.topCenter,
+                                                end: Alignment.bottomCenter,
+                                                colors: [
+                                                  Colors.transparent,
+                                                  Colors.black
+                                                      .withOpacity(0.6),
+                                                ],
+                                              ),
+                                            ),
+                                            child: Text(
+                                              song.name,
+                                              style: const TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : _buildSongListName(song.name),
+                            ),
                           );
                         },
                       ),

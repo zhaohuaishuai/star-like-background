@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:m/data/api/common.dart';
 import 'package:m/data/module/active_member_params.dart';
 import 'package:m/data/module/captcha_image.dart';
@@ -76,8 +78,12 @@ class UserProvider extends CommonGetConnect{
   }
 
   // /star/h5/song_list/add
-  Future<bool> addSongList(String name, [String? list]) async {
-    var body = {'name': name, 'list': list ?? ''};
+  Future<bool> addSongList(String name, [String? list, String? posterUrl]) async {
+    var body = {
+      'name': name,
+      'list': list ?? '',
+      'posterUrl': posterUrl ?? '',
+    };
     debugPrint('【创建歌单】请求: ${jsonEncode(body)}');
     dynamic result =
         await post('/star/h5/song_list', body);
@@ -90,13 +96,32 @@ class UserProvider extends CommonGetConnect{
   }
 
   Future<bool> upSongList(
-      {required String id, String? name, String? list}) async {
-    dynamic result =
-        await put('/star/h5/song_list', {'id': id, 'name': name, 'list': list});
+      {required String id, String? name, String? list, String? posterUrl}) async {
+    dynamic result = await put('/star/h5/song_list',
+        {'id': id, 'name': name, 'list': list, 'posterUrl': posterUrl});
     if (result.body?['code'] == 200) {
       return true;
     } else {
       return false;
+    }
+  }
+
+  /// 上传图片到蓝空图床（后端自动压缩），成功返回图片URL
+  Future<String?> uploadImage(XFile file) async {
+    try {
+      FormData formData = FormData.fromMap({
+        'file': MultipartFile.fromBytes(await file.readAsBytes(),
+            filename: file.name),
+      });
+      dynamic result = await post('/oss/upload_image', formData,
+          contentType: 'multipart/form-data');
+      if (result.body?['code'] == 200) {
+        return result.body['data']['links']['url'] as String?;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('【上传图片失败】$e');
+      return null;
     }
   }
 

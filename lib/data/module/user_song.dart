@@ -14,6 +14,7 @@ class UserSong {
   final String? updateBy;
   final String? updateTime;
   final String? remark;
+  final String? posterUrl;
 
   UserSong({
     required this.id,
@@ -27,6 +28,7 @@ class UserSong {
     this.updateBy,
     this.updateTime,
     this.remark,
+    this.posterUrl,
   });
 
   copyWith({
@@ -41,6 +43,7 @@ class UserSong {
     String? updateBy,
     String? updateTime,
     String? remark,
+    String? posterUrl,
   }) {
     return UserSong(
       id: id ?? this.id,
@@ -54,6 +57,7 @@ class UserSong {
       updateBy: updateBy ?? this.updateBy,
       updateTime: updateTime ?? this.updateTime,
       remark: remark ?? this.remark,
+      posterUrl: posterUrl ?? this.posterUrl,
     );
   }
 
