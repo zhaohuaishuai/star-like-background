@@ -160,7 +160,7 @@ class VersionUpdateDialog extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF).withOpacity(0.7),
+        color: const Color(0xFFFBE595),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: const Color(0xFFB8860B).withOpacity(0.18),
