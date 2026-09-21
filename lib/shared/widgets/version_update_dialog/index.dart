@@ -90,11 +90,23 @@ class VersionUpdateDialog extends StatelessWidget {
           // 版本号徽章（位于图片顶部装饰图案下方）
           Center(child: _buildVersionBadge()),
           SizedBox(height: dialogHeight * 0.04),
-          // 更新内容（可滚动）
-          Expanded(child: _buildContextScroll()),
+          // 更新内容（可滚动，宽度收窄居中）
+          Expanded(
+            child: Center(
+              child: FractionallySizedBox(
+                widthFactor: 0.86,
+                child: _buildContextScroll(),
+              ),
+            ),
+          ),
           const SizedBox(height: 16),
-          // 立即更新按钮
-          _buildUpdateButton(),
+          // 立即更新按钮（尺寸缩小，居中）
+          Center(
+            child: FractionallySizedBox(
+              widthFactor: 0.78,
+              child: _buildUpdateButton(),
+            ),
+          ),
         ],
       ),
     );
@@ -183,7 +195,7 @@ class VersionUpdateDialog extends StatelessWidget {
   /// 底部「立即更新」按钮：暖金棕渐变
   Widget _buildUpdateButton() {
     return SizedBox(
-      height: 48,
+      height: 40,
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
