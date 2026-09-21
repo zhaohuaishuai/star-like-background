@@ -151,6 +151,7 @@ flutter:
     - assets/mp3/sp5.wav
     - assets/mp3/sp6.wav
     - assets/img/app_update.jpg
+    - assets/img/update_btn.jpg
     # - assets/icon/light_mode_24dp.png
 
   # An image asset can refer to one or more resolution-specific "variants", see

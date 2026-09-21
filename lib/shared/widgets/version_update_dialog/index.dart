@@ -103,10 +103,10 @@ class VersionUpdateDialog extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          // 立即更新按钮（尺寸缩小，居中）
+          // 马上升级按钮（使用按钮图片，居中）
           Center(
             child: FractionallySizedBox(
-              widthFactor: 0.78,
+              widthFactor: 0.6,
               child: _buildUpdateButton(),
             ),
           ),
@@ -195,57 +195,17 @@ class VersionUpdateDialog extends StatelessWidget {
     );
   }
 
-  /// 底部「立即更新」按钮：暖金棕渐变
+  /// 底部「马上升级」按钮：使用设计好的按钮图片，点击后下载安装包
   Widget _buildUpdateButton() {
-    return SizedBox(
-      height: 40,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFF8B5E34),
-              Color(0xFFC89B3C),
-            ],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFFB8860B).withOpacity(0.4),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: ElevatedButton(
-          onPressed: () {
-            DownFile.downLoadApk(url: appVersion.downpath);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.download_rounded, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                '马上升级'.tr,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 2,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-            ],
-          ),
+    return AspectRatio(
+      aspectRatio: 729 / 232,
+      child: GestureDetector(
+        onTap: () {
+          DownFile.downLoadApk(url: appVersion.downpath);
+        },
+        child: Image.asset(
+          'assets/img/update_btn.jpg',
+          fit: BoxFit.fill,
         ),
       ),
     );
