@@ -497,8 +497,8 @@ class HomePage extends GetWidget<HomeController> {
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 8,
                 childAspectRatio: 0.78,
               ),
               itemCount: controller.recommendSongList.length,
@@ -550,7 +550,7 @@ class HomePage extends GetWidget<HomeController> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 6),
+            padding: const EdgeInsets.only(top: 4),
             child: Text(
               song.name,
               maxLines: 2,
