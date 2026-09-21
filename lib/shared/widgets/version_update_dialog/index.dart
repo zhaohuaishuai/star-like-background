@@ -163,6 +163,14 @@ class VersionUpdateDialog extends StatelessWidget {
           color: const Color(0xFFB8860B).withOpacity(0.18),
           width: 1,
         ),
+        // 光源从右上方打过来，阴影落向左下方
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFB8860B).withOpacity(0.18),
+            blurRadius: 12,
+            offset: const Offset(-4, 4),
+          ),
+        ],
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -182,8 +190,9 @@ class VersionUpdateDialog extends StatelessWidget {
             Text(
               appVersion.context,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 13,
                 height: 1.7,
+                fontWeight: FontWeight.normal,
                 color: Color(0xFF4A3B2A),
                 letterSpacing: 0.3,
                 decoration: TextDecoration.none,
