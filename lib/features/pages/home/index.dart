@@ -455,15 +455,6 @@ class HomePage extends GetWidget<HomeController> {
                 },
               ),
               IconTextWidget(
-                icon: IconUtil.assistant,
-                text: '智能助手'.tr,
-                iconSize: 54,
-                onTap: () {
-                  controller.toNavWebView(
-                      'https://star.top237.top/agent', '智能助手'.tr);
-                },
-              ),
-              IconTextWidget(
                 icon: Icons.feedback,
                 text: '问题反馈'.tr,
                 iconSize: 54,
@@ -489,7 +480,8 @@ class HomePage extends GetWidget<HomeController> {
         children: [
           H1(
             title: '精选歌单'.tr,
-            bottomSpacing: 4,
+            bottomSpacing: 0,
+            titleHeight: 1.0,
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: StarThemeData.spacing),

@@ -125,7 +125,6 @@ const en = {
   '速度': 'Speed',
   '忽略电池优化': 'Ignore battery optimization',
   '设置': 'Settings',
-  '智能助手': 'Smart assistant',
   '小程序': 'Mini-app',
   '深层呼吸': 'Deep breathing',
   '投屏': 'Screen sharing',
