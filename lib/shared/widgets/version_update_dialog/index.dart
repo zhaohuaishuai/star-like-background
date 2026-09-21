@@ -163,12 +163,25 @@ class VersionUpdateDialog extends StatelessWidget {
           color: const Color(0xFFB8860B).withOpacity(0.18),
           width: 1,
         ),
-        // 光源从右上方打过来，阴影落向左下方
+        // 光源从右上方打过来，多层阴影叠加形成黑色向透明的渐变过渡
         boxShadow: [
+          // 近处深色阴影（贴边，色最深）
           BoxShadow(
-            color: const Color(0xFFB8860B).withOpacity(0.18),
-            blurRadius: 12,
-            offset: const Offset(-4, 4),
+            color: Colors.black.withOpacity(0.22),
+            blurRadius: 2,
+            offset: const Offset(-2, 2),
+          ),
+          // 中距过渡阴影
+          BoxShadow(
+            color: Colors.black.withOpacity(0.14),
+            blurRadius: 8,
+            offset: const Offset(-3, 3),
+          ),
+          // 远处淡出阴影
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 16,
+            offset: const Offset(-5, 5),
           ),
         ],
       ),
