@@ -26,7 +26,7 @@ class GeDanListPage extends GetWidget<GeDanListController> {
           actions: [
             // 权限按钮
             Obx(() {
-              if (controller.hasPer){
+              if (controller.hasPer) {
                 return IconButton(
                   icon: const Icon(
                     Icons.add,
@@ -35,7 +35,8 @@ class GeDanListPage extends GetWidget<GeDanListController> {
                   onPressed: () {
                     controller.addItem();
                   },
-                );}
+                );
+              }
               return const SizedBox();
             }),
             IconButton(
@@ -44,9 +45,11 @@ class GeDanListPage extends GetWidget<GeDanListController> {
                 controller.shareUrl();
               },
             ),
-            IconButton(onPressed: () {
-                controller.copyId();
-            }, icon: const Icon(Icons.copy))
+            IconButton(
+                onPressed: () {
+                  controller.copyId();
+                },
+                icon: const Icon(Icons.copy))
           ],
         ),
         body: Obx(() {
@@ -91,8 +94,6 @@ class SongListDetailIist extends StatefulWidget {
 }
 
 class _SongListDetailIistState extends State<SongListDetailIist> {
-
-  
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -102,61 +103,69 @@ class _SongListDetailIistState extends State<SongListDetailIist> {
               size: 120, color: StarThemeData.primaryColor.withOpacity(0.5)),
         );
       }
-      return ReorderableListView.builder(
+      final list = widget.controller.list;
+      // 条目构建（本人歌单/他人歌单共用）
+      Widget buildItem(BuildContext context, int index) {
+        return ListTile(
+          title: Text(list[index]?.mulu ?? '歌曲'.tr),
+          subtitle: Text(list[index]?.shijiName ?? '未知'.tr),
+          onTap: () => widget.controller.toPlayer(list[index]),
+          leading: widget.controller.hasPer
+              ? IconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.drag_indicator,
+                  ))
+              : null,
+          trailing: Obx(() {
+            if (!widget.controller.hasPer) {
+              return const SizedBox();
+            }
+            return PopupMenuButton(
+              icon: const Icon(Icons.more_vert),
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                    child: Row(
+                      children: [
+                        const Icon(Icons.delete, size: 18),
+                        SizedBox(
+                          width: StarThemeData.spacing,
+                        ),
+                        Text('删除'.tr),
+                      ],
+                    ),
+                    onTap: () {
+                      widget.controller.delItem(list[index]!.id);
+                    },
+                  ),
+                ];
+              },
+            );
+          }),
+        );
+      }
+
+      // 本人歌单：支持长按拖拽排序；他人/未登录歌单：普通列表，禁止拖拽
+      if (widget.controller.hasPer) {
+        return ReorderableListView.builder(
           onReorder: (oldIndex, newIndex) {
             widget.controller.onReorder(oldIndex, newIndex);
           },
-          itemCount: widget.controller.list.length,
+          itemCount: list.length,
           itemBuilder: (context, index) {
             return Container(
               key: Key(index.toString()),
-              child: ListTile(
-                title: Text(widget.controller.list[index]?.mulu ?? '歌曲'.tr),
-                subtitle:
-                    Text(widget.controller.list[index]?.shijiName ?? '未知'.tr),
-                onTap: () =>
-                    widget.controller.toPlayer(widget.controller.list[index]),
-                leading: widget.controller.hasPer ?
-                  IconButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.drag_indicator,
-                      )):null,
-                trailing:  Obx((){
-
-                  if(!widget.controller.hasPer ){
-                    return const SizedBox();
-                  }
-                  return  PopupMenuButton(
-                  icon: const Icon(Icons.more_vert),
-                  itemBuilder: (context) {
-                    return [
-                      PopupMenuItem(
-                        child: Row(
-                          children: [
-                            const Icon(Icons.delete, size: 18),
-                            SizedBox(
-                              width: StarThemeData.spacing,
-                            ),
-                            Text('删除'.tr),
-                          ],
-                        ),
-                        onTap: () {
-                          widget.controller
-                              .delItem(widget.controller.list[index]!.id);
-                        },
-                      ),
-                    ];
-                  },
-                );
-
-
-                }),
-              ),
+              child: buildItem(context, index),
             );
           },
         );
-      });
+      }
+      return ListView.builder(
+        itemCount: list.length,
+        itemBuilder: buildItem,
+      );
+    });
   }
 }
