@@ -10,6 +10,7 @@ import 'package:m/data/module/app_version.dart';
 import 'package:m/data/module/notice.dart';
 import 'package:m/data/module/recommend.dart';
 import 'package:m/data/module/sgb_data.dart';
+import 'package:m/data/module/user_song.dart';
 import 'package:m/data/services/sgb.dart';
 import 'package:m/data/services/star_player.dart';
 import 'package:m/shared/widgets/version_update_dialog/index.dart';
@@ -19,11 +20,15 @@ class HomeController extends GetxController {
   RxInt counter = 0.obs;
   RxList<Notice> noticeList = <Notice>[].obs;
   final RxList<Recommend> _recommendList = <Recommend>[].obs;
+  /// 推荐歌单列表（导航ICON下方网格展示）
+  final RxList<UserSong> _recommendSongList = <UserSong>[].obs;
 
   GlobalKey sgbHeaderTabKey = GlobalKey();
   final box = GetStorage();
   // ignore: invalid_use_of_protected_member
   List<Recommend> get recommendList => _recommendList;
+  // ignore: invalid_use_of_protected_member
+  List<UserSong> get recommendSongList => _recommendSongList;
 
   RxInt currentIndex = 0.obs;
   /// 轮播图当前活跃索引，用于控制图片懒加载
@@ -60,6 +65,7 @@ class HomeController extends GetxController {
     try {
       noticeList.value = await api.getNoticeList();
       _recommendList.value = await api.recommend();
+      _recommendSongList.value = await api.recommendSongList();
     } catch (e) {
       debugPrint('首页数据获取报错：${e.toString()} ${e.runtimeType}');
     } finally {

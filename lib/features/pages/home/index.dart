@@ -7,6 +7,7 @@ import 'package:m/core/utils/utils.dart';
 
 import 'package:m/data/services/sgb.dart';
 import 'package:m/data/services/user.dart';
+import 'package:m/data/module/user_song.dart';
 import 'package:m/features/pages/home/controller.dart';
 import 'package:m/shared/widgets/down_pull_refresh.dart';
 import 'package:m/shared/widgets/empty.dart';
@@ -44,6 +45,7 @@ class HomePage extends GetWidget<HomeController> {
                 _recommendBuilder(),
                 _mySongListBuild(),
                 _minAppBuild(),
+                _recommendSongListBuild(),
                 // _sgbBuild(context),
                 // _sgbListBuild(context),
                 SliverPadding(
@@ -509,6 +511,91 @@ class HomePage extends GetWidget<HomeController> {
               ),
             ],
           )
+        ],
+      ),
+    );
+  }
+
+  /// 首页推荐歌单（导航ICON下方，网易云式2列网格：海报 + 歌单名）
+  _recommendSongListBuild() {
+    if (controller.recommendSongList.isEmpty) {
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
+    return SliverToBoxAdapter(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          H1(
+            title: '推荐歌单'.tr,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: StarThemeData.spacing),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.78,
+              ),
+              itemCount: controller.recommendSongList.length,
+              itemBuilder: (context, index) {
+                final song = controller.recommendSongList[index];
+                return _buildRecommendSongCard(song);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 推荐歌单卡片：海报 + 歌单名称
+  Widget _buildRecommendSongCard(UserSong song) {
+    final hasPoster = song.posterUrl != null && song.posterUrl!.isNotEmpty;
+    return InkWell(
+      onTap: () {
+        RouterUtils.toSongListDetail(song.id);
+      },
+      borderRadius: BorderRadius.circular(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: SizedBox(
+                width: double.infinity,
+                child: hasPoster
+                    ? Image.network(
+                        song.posterUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stack) =>
+                            _buildSongListName(song.name),
+                      )
+                    : Container(
+                        color: StarThemeData.primaryColor.withOpacity(0.2),
+                        alignment: Alignment.center,
+                        child: Text(
+                          song.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              song.name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 14),
+            ),
+          ),
         ],
       ),
     );

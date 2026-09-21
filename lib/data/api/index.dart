@@ -3,6 +3,7 @@ import 'package:m/data/api/common.dart';
 import 'package:m/data/module/app_version.dart';
 import 'package:m/data/module/notice.dart';
 import 'package:m/data/module/recommend.dart';
+import 'package:m/data/module/user_song.dart';
 
 class IndexProvider extends CommonGetConnect {
   Future<List<Notice>> getNoticeList() async { 
@@ -27,6 +28,18 @@ class IndexProvider extends CommonGetConnect {
     Response<dynamic> res = await get('/star/recommend');
     final List<dynamic> rows = res.body['data'];
     return rows.map((json) => Recommend.fromJson(json)).toList();
+  }
+
+  /// 客户端首页推荐歌单列表（按推荐时间倒序）
+  Future<List<UserSong>> recommendSongList() async {
+    Response<dynamic> res = await get('/star/h5/song_list/recommend');
+    if (res.body?['code'] == 200) {
+      final List<dynamic> rows = res.body['data'] as List<dynamic>;
+      return rows
+          .map((json) => UserSong.fromJson(json as Map<String, dynamic>))
+          .toList();
+    }
+    return [];
   }
 
 
