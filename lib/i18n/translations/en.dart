@@ -8,6 +8,7 @@ const en = {
   '请输入要搜索的内容': 'Please enter the content to be searched',
   '搜索': 'Search',
   '推荐歌单': 'Recommended Playlist',
+  '精选歌单': 'Featured Playlist',
   '诗歌本': 'Poetry Book',
   '升序': 'Ascending',
   '降序': 'Descending',

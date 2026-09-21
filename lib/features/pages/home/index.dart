@@ -516,7 +516,7 @@ class HomePage extends GetWidget<HomeController> {
     );
   }
 
-  /// 首页推荐歌单（导航ICON下方，网易云式2列网格：海报 + 歌单名）
+  /// 首页精选歌单（导航ICON下方，网易云式2列网格：海报 + 歌单名）
   _recommendSongListBuild() {
     if (controller.recommendSongList.isEmpty) {
       return const SliverToBoxAdapter(child: SizedBox.shrink());
@@ -526,7 +526,7 @@ class HomePage extends GetWidget<HomeController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           H1(
-            title: '推荐歌单'.tr,
+            title: '精选歌单'.tr,
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: StarThemeData.spacing),
