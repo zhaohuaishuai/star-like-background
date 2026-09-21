@@ -365,108 +365,47 @@ class HomePage extends GetWidget<HomeController> {
   _mySongListBuild() {
     return SliverToBoxAdapter(
       child: Obx(() {
-        if (UserService.to.songList.isNotEmpty) {
-          return SizedBox(
-            height: 80,
-            child: Column(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    H1(
-                      title: '我的歌单'.tr,
-                    ),
-                    const Spacer(),
-                    TextButton(
-                      child: Text('查看更多'.tr),
-                      onPressed: () {
-                        onTabChange?.call(1);
-                        // Get.toNamed(Routes.createSong);
-                      },
-                    ),
-                  ],
-                ),
-                //  横向滑动的卡片
-
-                Expanded(
-                  child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: StarThemeData.spacing),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: StarThemeData.primaryColor.withOpacity(0.2)),
-                      child: Swiper(
-                        duration: 500,
-                        loop: true,
-                        autoplay: true,
-                        scrollDirection: Axis.vertical,
-                        axisDirection: AxisDirection.down,
-                        itemCount: UserService.to.songList.length,
-                        itemBuilder: (context, index) {
-                          final song = UserService.to.songList[index];
-                          final hasPoster =
-                              song.posterUrl != null && song.posterUrl!.isNotEmpty;
-                          return InkWell(
-                            onTap: () {
-                              RouterUtils.toSongListDetail(song.id);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: StarThemeData.spacing),
-                              child: hasPoster
-                                  ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Stack(
-                                        fit: StackFit.expand,
-                                        children: [
-                                          Image.network(
-                                            song.posterUrl!,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (context, error,
-                                                    stack) =>
-                                                _buildSongListName(song.name),
-                                          ),
-                                          Container(
-                                            alignment: Alignment.bottomLeft,
-                                            padding: const EdgeInsets.all(8),
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topCenter,
-                                                end: Alignment.bottomCenter,
-                                                colors: [
-                                                  Colors.transparent,
-                                                  Colors.black
-                                                      .withOpacity(0.6),
-                                                ],
-                                              ),
-                                            ),
-                                            child: Text(
-                                              song.name,
-                                              style: const TextStyle(
-                                                  fontSize: 15,
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w600),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  : _buildSongListName(song.name),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          );
-        } else {
+        if (UserService.to.songList.isEmpty) {
           return Container();
         }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                H1(
+                  title: '我的歌单'.tr,
+                ),
+                const Spacer(),
+                TextButton(
+                  child: Text('查看更多'.tr),
+                  onPressed: () {
+                    // 我的歌单在「我的」tab（index 4）
+                    onTabChange?.call(4);
+                  },
+                ),
+              ],
+            ),
+            // 简单文字列表：一行一个歌单名
+            ...UserService.to.songList.map(
+              (song) => InkWell(
+                onTap: () {
+                  RouterUtils.toSongListDetail(song.id);
+                },
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: StarThemeData.spacing, vertical: 10),
+                  child: Text(
+                    song.name,
+                    style: const TextStyle(fontSize: 15),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
       }),
     );
   }
