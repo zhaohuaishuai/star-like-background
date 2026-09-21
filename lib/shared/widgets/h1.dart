@@ -18,7 +18,7 @@ class H1 extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Spacing(
-          top: bottomSpacing ?? StarThemeData.spacing,
+          top: StarThemeData.spacing,
         ),
         Padding(
           padding: EdgeInsets.only(left: StarThemeData.spacing),
@@ -31,7 +31,7 @@ class H1 extends StatelessWidget {
           ),
         ),
         Spacing(
-          top: StarThemeData.spacing,
+          top: bottomSpacing ?? StarThemeData.spacing,
         ),
       ],
     );
