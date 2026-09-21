@@ -6,7 +6,11 @@ import 'package:m/shared/widgets/spacing.dart';
 // ignore: must_be_immutable
 class H1 extends StatelessWidget {
   String title;
-  H1({super.key, required this.title});
+
+  /// 标题下方与内容之间的间距，默认与标题上方一致
+  final double? bottomSpacing;
+
+  H1({super.key, required this.title, this.bottomSpacing});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +18,7 @@ class H1 extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Spacing(
-          top: StarThemeData.spacing,
+          top: bottomSpacing ?? StarThemeData.spacing,
         ),
         Padding(
           padding: EdgeInsets.only(left: StarThemeData.spacing),

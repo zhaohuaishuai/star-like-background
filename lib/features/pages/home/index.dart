@@ -489,6 +489,7 @@ class HomePage extends GetWidget<HomeController> {
         children: [
           H1(
             title: '精选歌单'.tr,
+            bottomSpacing: 4,
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: StarThemeData.spacing),
