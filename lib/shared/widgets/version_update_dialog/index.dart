@@ -236,7 +236,7 @@ class VersionUpdateDialog extends StatelessWidget {
               const Icon(Icons.download_rounded, size: 20),
               const SizedBox(width: 8),
               Text(
-                '立即更新'.tr,
+                '马上升级'.tr,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
