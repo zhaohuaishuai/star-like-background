@@ -87,8 +87,11 @@ class VersionUpdateDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 版本号徽章（位于图片顶部装饰图案下方）
-          Center(child: _buildVersionBadge()),
+          // 版本号徽章（位于图片顶部装饰图案下方，下移 4 像素）
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Center(child: _buildVersionBadge()),
+          ),
           SizedBox(height: dialogHeight * 0.04),
           // 更新内容（可滚动，宽度收窄居中）
           Expanded(
