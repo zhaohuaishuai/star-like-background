@@ -10,7 +10,15 @@ class H1 extends StatelessWidget {
   /// 标题下方与内容之间的间距，默认与标题上方一致
   final double? bottomSpacing;
 
-  H1({super.key, required this.title, this.bottomSpacing});
+  /// 标题文字行高倍率，用于压缩标题自身多余空白（默认使用字体默认行高）
+  final double? titleHeight;
+
+  H1({
+    super.key,
+    required this.title,
+    this.bottomSpacing,
+    this.titleHeight,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +32,10 @@ class H1 extends StatelessWidget {
           padding: EdgeInsets.only(left: StarThemeData.spacing),
           child: Text(
             title.tr,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
+              height: titleHeight,
             ),
           ),
         ),
