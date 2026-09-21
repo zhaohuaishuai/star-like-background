@@ -368,43 +368,66 @@ class HomePage extends GetWidget<HomeController> {
         if (UserService.to.songList.isEmpty) {
           return Container();
         }
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                H1(
-                  title: '我的歌单'.tr,
-                ),
-                const Spacer(),
-                TextButton(
-                  child: Text('查看更多'.tr),
-                  onPressed: () {
-                    // 我的歌单在「我的」tab（index 4）
-                    onTabChange?.call(4);
-                  },
-                ),
-              ],
-            ),
-            // 简单文字列表：一行一个歌单名
-            ...UserService.to.songList.map(
-              (song) => InkWell(
-                onTap: () {
-                  RouterUtils.toSongListDetail(song.id);
-                },
+        return SizedBox(
+          height: 80,
+          child: Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  H1(
+                    title: '我的歌单'.tr,
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    child: Text('查看更多'.tr),
+                    onPressed: () {
+                      // 我的歌单在「我的」tab（index 4）
+                      onTabChange?.call(4);
+                    },
+                  ),
+                ],
+              ),
+              // 上下轮播，仅展示歌单名（不展示海报图片）
+              Expanded(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: StarThemeData.spacing, vertical: 10),
-                  child: Text(
-                    song.name,
-                    style: const TextStyle(fontSize: 15),
-                    overflow: TextOverflow.ellipsis,
+                  padding:
+                      EdgeInsets.symmetric(horizontal: StarThemeData.spacing),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: StarThemeData.primaryColor.withOpacity(0.2)),
+                    child: Swiper(
+                      duration: 500,
+                      loop: true,
+                      autoplay: true,
+                      scrollDirection: Axis.vertical,
+                      axisDirection: AxisDirection.down,
+                      itemCount: UserService.to.songList.length,
+                      itemBuilder: (context, index) {
+                        final song = UserService.to.songList[index];
+                        return InkWell(
+                          onTap: () {
+                            RouterUtils.toSongListDetail(song.id);
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: StarThemeData.spacing),
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              song.name,
+                              style: const TextStyle(fontSize: 15),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       }),
     );
