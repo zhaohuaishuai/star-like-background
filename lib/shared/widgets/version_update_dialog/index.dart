@@ -93,12 +93,15 @@ class VersionUpdateDialog extends StatelessWidget {
             child: Center(child: _buildVersionBadge()),
           ),
           SizedBox(height: dialogHeight * 0.04),
-          // 更新内容（可滚动，宽度收窄居中）
+          // 更新内容（可滚动，宽度收窄居中，整体左移 6 像素）
           Expanded(
-            child: Center(
-              child: FractionallySizedBox(
-                widthFactor: 0.86,
-                child: _buildContextScroll(),
+            child: Transform.translate(
+              offset: const Offset(-6, 0),
+              child: Center(
+                child: FractionallySizedBox(
+                  widthFactor: 0.86,
+                  child: _buildContextScroll(),
+                ),
               ),
             ),
           ),
