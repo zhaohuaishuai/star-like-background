@@ -5,12 +5,10 @@ import 'package:m/data/module/app_version.dart';
 
 /// 版本更新弹窗组件
 ///
-/// 设计理念：「天光」
-/// 以教堂彩绘玻璃透入的天光为灵感，结合温暖庄重的视觉语言，
-/// 营造兼具神圣感与现代感的版本更新提示体验。
-///
-/// 色彩基调：深赭石底 × 金红渐变 × 暖白文字
-/// 质感表现：轻微玻璃拟态 + 渐变光晕 + 精致描边
+/// 设计说明：
+/// 以设计好的 `assets/img/app_update.jpg`（暖白米色 + 金色装饰的竖版海报）
+/// 作为整张背景图，在图片上方叠加展示「版本号」「更新内容」与「立即更新」按钮。
+/// 弹窗宽高比与背景图保持一致，文字采用深棕暖色系，与金色装饰统一。
 class VersionUpdateDialog extends StatelessWidget {
   final AppVersion appVersion;
 
@@ -18,6 +16,9 @@ class VersionUpdateDialog extends StatelessWidget {
     super.key,
     required this.appVersion,
   });
+
+  /// 背景图宽高比（1463 / 1986），用于保证弹窗比例与图片一致
+  static const double _imageRatio = 1463 / 1986;
 
   /// 以动画方式弹出更新对话框
   static void show(AppVersion appVersion) {
@@ -31,8 +32,10 @@ class VersionUpdateDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Get.isDarkMode;
-    final theme = Get.theme;
+    final screenWidth = MediaQuery.of(context).size.width;
+    // 弹窗宽度：最大 320，并适配小屏留出边距
+    final dialogWidth = (screenWidth - 56).clamp(240.0, 320.0).toDouble();
+    final dialogHeight = dialogWidth / _imageRatio;
 
     return PopScope(
       canPop: false,
@@ -40,13 +43,13 @@ class VersionUpdateDialog extends StatelessWidget {
         child: SingleChildScrollView(
           child: _AnimatedEntry(
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 28),
+              width: dialogWidth,
+              height: dialogHeight,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
-                color: isDark ? const Color(0xFF1C1C2E) : Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF8B0000).withOpacity(0.3),
+                    color: const Color(0xFFB8860B).withOpacity(0.3),
                     blurRadius: 40,
                     offset: const Offset(0, 12),
                   ),
@@ -57,16 +60,18 @@ class VersionUpdateDialog extends StatelessWidget {
                   ),
                 ],
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildHeader(isDark, theme),
-                    _buildContent(context, isDark, theme),
-                    _buildActions(isDark, theme),
-                  ],
-                ),
+              clipBehavior: Clip.antiAlias,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // 背景图铺满整个弹窗
+                  Image.asset(
+                    'assets/img/app_update.jpg',
+                    fit: BoxFit.fill,
+                  ),
+                  // 内容层：在背景图上叠加版本、更新内容与按钮
+                  _buildContent(dialogHeight),
+                ],
               ),
             ),
           ),
@@ -75,240 +80,156 @@ class VersionUpdateDialog extends StatelessWidget {
     );
   }
 
-  /// 顶部装饰区域：渐变色天穹 + 十字星芒光晕
-  Widget _buildHeader(bool isDark, ThemeData theme) {
+  /// 在背景图上叠加版本号、更新内容与「立即更新」按钮
+  Widget _buildContent(double dialogHeight) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(26, dialogHeight * 0.24, 26, 36),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 版本号徽章（位于图片顶部装饰图案下方）
+          Center(child: _buildVersionBadge()),
+          SizedBox(height: dialogHeight * 0.04),
+          // 更新内容（可滚动）
+          Expanded(child: _buildContextScroll()),
+          const SizedBox(height: 16),
+          // 立即更新按钮
+          _buildUpdateButton(),
+        ],
+      ),
+    );
+  }
+
+  /// 版本号徽章：金色描边 + 深棕文字
+  Widget _buildVersionBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
+      decoration: BoxDecoration(
+        color: const Color(0xFFB8860B).withOpacity(0.10),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: const Color(0xFFB8860B).withOpacity(0.45),
+          width: 1.2,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.auto_awesome_rounded,
+            size: 16,
+            color: Color(0xFF8B6914),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            'v ${appVersion.version}',
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF6B4E1B),
+              letterSpacing: 1,
+              decoration: TextDecoration.none,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 更新内容滚动区域
+  Widget _buildContextScroll() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(28, 36, 28, 28),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isDark
-              ? [
-                  const Color(0xFF2D0A0A),
-                  const Color(0xFF4A0E0E),
-                  const Color(0xFF6B1A1A),
-                ]
-              : [
-                  const Color(0xFF8B1A1A),
-                  const Color(0xFFB22222),
-                  const Color(0xFFDC3545),
-                ],
+        color: const Color(0xFFFFFFFF).withOpacity(0.55),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: const Color(0xFFB8860B).withOpacity(0.18),
+          width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF8B0000).withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
-      child: Column(
-        children: [
-          _buildGlowIcon(isDark),
-          const SizedBox(height: 16),
-          Text(
-            '版本更新'.tr,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              letterSpacing: 4,
-              height: 1.3,
-              decoration: TextDecoration.none,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.25),
-                width: 1,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '更新内容'.tr,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFB8860B),
+                letterSpacing: 2,
+                decoration: TextDecoration.none,
               ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.new_releases_rounded,
-                  size: 14,
-                  color: Colors.white.withOpacity(0.9),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'v ${appVersion.version}',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white.withOpacity(0.95),
-                    letterSpacing: 1,
-                    decoration: TextDecoration.none,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 十字星芒光晕图标
-  Widget _buildGlowIcon(bool isDark) {
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [
-            Colors.white.withOpacity(0.4),
-            Colors.white.withOpacity(0.05),
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.white.withOpacity(0.15),
-            blurRadius: 20,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Icon(
-        Icons.star_rounded,
-        size: 28,
-        color: Colors.white.withOpacity(0.9),
-      ),
-    );
-  }
-
-  /// 中间内容区域：更新说明
-  Widget _buildContent(BuildContext context, bool isDark, ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '更新内容'.tr,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: isDark
-                  ? Colors.white.withOpacity(0.7)
-                  : const Color(0xFF6B7280),
-              letterSpacing: 2,
-              decoration: TextDecoration.none,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            height: 2,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFFDC3545).withOpacity(0.6),
-                  const Color(0xFFDC3545).withOpacity(0.1),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.white.withOpacity(0.04)
-                  : const Color(0xFFF8F9FA),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isDark
-                    ? Colors.white.withOpacity(0.06)
-                    : Colors.black.withOpacity(0.04),
-              ),
-            ),
-            child: Text(
+            const SizedBox(height: 10),
+            Text(
               appVersion.context,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 height: 1.7,
-                color: isDark
-                    ? Colors.white.withOpacity(0.85)
-                    : const Color(0xFF374151),
+                color: Color(0xFF4A3B2A),
                 letterSpacing: 0.3,
                 decoration: TextDecoration.none,
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  /// 底部按钮区域
-  Widget _buildActions(bool isDark, ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 28),
-      child: SizedBox(
-        width: double.infinity,
-        height: 50,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            gradient: LinearGradient(
-              colors: isDark
-                  ? [
-                      const Color(0xFFB22222),
-                      const Color(0xFFDC3545),
-                    ]
-                  : [
-                      const Color(0xFFC0392B),
-                      const Color(0xFFE74C3C),
-                    ],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
+  /// 底部「立即更新」按钮：暖金棕渐变
+  Widget _buildUpdateButton() {
+    return SizedBox(
+      height: 48,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFF8B5E34),
+              Color(0xFFC89B3C),
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFB8860B).withOpacity(0.4),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFFDC3545).withOpacity(0.4),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
+          ],
+        ),
+        child: ElevatedButton(
+          onPressed: () {
+            DownFile.downLoadApk(url: appVersion.downpath);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.download_rounded, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                '立即更新'.tr,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 2,
+                  decoration: TextDecoration.none,
+                ),
               ),
             ],
-          ),
-          child: ElevatedButton(
-            onPressed: () {
-              DownFile.downLoadApk(url: appVersion.downpath);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.download_rounded, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  '立即更新'.tr,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 2,
-                    decoration: TextDecoration.none,
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),
