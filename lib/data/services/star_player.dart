@@ -147,32 +147,47 @@ class StarPlayer extends StarPlayerAbstract {
 
   /// 上报"开始播放"（会话未进行中才上报，暂停恢复不重复上报）
   Future<void> reportPlayStart() async {
-    final song = currentSong.value;
-    if (song == null) return;
-    if (_reportSongId == song.id && _reportSessionActive) return;
-    _reportSongId = song.id;
-    _reportSessionActive = true;
-    await api.reportPlayEvent(song.id, '1');
+    try {
+      final song = currentSong.value;
+      if (song == null) return;
+      if (_reportSongId == song.id && _reportSessionActive) return;
+      _reportSongId = song.id;
+      _reportSessionActive = true;
+      await api.reportPlayEvent(song.id, '1');
+    } catch (e) {
+      // 上报失败不影响播放主流程
+      debugPrint('播放统计上报失败 reportPlayStart: $e');
+    }
   }
 
   /// 上报"播放完成"，播放时长取歌曲总时长
   Future<void> reportPlayComplete() async {
-    final song = currentSong.value;
-    if (song == null || !_reportSessionActive || _reportSongId != song.id) return;
-    _reportSessionActive = false;
-    final int? total = _audioHandler.duration?.inSeconds;
-    await api.reportPlayEvent(song.id, '2',
-        duration: total, playDuration: total);
+    try {
+      final song = currentSong.value;
+      if (song == null || !_reportSessionActive || _reportSongId != song.id) return;
+      _reportSessionActive = false;
+      final int? total = _audioHandler.duration?.inSeconds;
+      await api.reportPlayEvent(song.id, '2',
+          duration: total, playDuration: total);
+    } catch (e) {
+      // 上报失败不影响播放主流程
+      debugPrint('播放统计上报失败 reportPlayComplete: $e');
+    }
   }
 
   /// 上报"播放中断"（用户主动切歌），播放时长取切歌前已播进度
   Future<void> reportPlayInterrupt() async {
-    final song = currentSong.value;
-    if (song == null || !_reportSessionActive || _reportSongId != song.id) return;
-    _reportSessionActive = false;
-    await api.reportPlayEvent(song.id, '3',
-        duration: _audioHandler.duration?.inSeconds,
-        playDuration: _audioHandler.position.inSeconds);
+    try {
+      final song = currentSong.value;
+      if (song == null || !_reportSessionActive || _reportSongId != song.id) return;
+      _reportSessionActive = false;
+      await api.reportPlayEvent(song.id, '3',
+          duration: _audioHandler.duration?.inSeconds,
+          playDuration: _audioHandler.position.inSeconds);
+    } catch (e) {
+      // 上报失败不影响播放主流程
+      debugPrint('播放统计上报失败 reportPlayInterrupt: $e');
+    }
   }
 
   @override
