@@ -113,6 +113,7 @@ class StarPlayer extends StarPlayerAbstract {
   }
 
   setCurrentIndex(int index) async {
+    await reportPlayInterrupt(); // 切换歌曲前先上报旧歌中断（会话未进行中则跳过）
     playTarget.value = PlayTargetEnum.yuanChang;
     currentIndex = index;
     currentSong.value = await getSong();
@@ -153,7 +154,7 @@ class StarPlayer extends StarPlayerAbstract {
       if (_reportSongId == song.id && _reportSessionActive) return;
       _reportSongId = song.id;
       _reportSessionActive = true;
-      await api.reportPlayEvent(song.id, '1');
+      unawaited(api.reportPlayEvent(song.id, '1'));
     } catch (e) {
       // 上报失败不影响播放主流程
       debugPrint('播放统计上报失败 reportPlayStart: $e');
@@ -167,8 +168,8 @@ class StarPlayer extends StarPlayerAbstract {
       if (song == null || !_reportSessionActive || _reportSongId != song.id) return;
       _reportSessionActive = false;
       final int? total = _audioHandler.duration?.inSeconds;
-      await api.reportPlayEvent(song.id, '2',
-          duration: total, playDuration: total);
+      unawaited(api.reportPlayEvent(song.id, '2',
+          duration: total, playDuration: total));
     } catch (e) {
       // 上报失败不影响播放主流程
       debugPrint('播放统计上报失败 reportPlayComplete: $e');
@@ -181,9 +182,9 @@ class StarPlayer extends StarPlayerAbstract {
       final song = currentSong.value;
       if (song == null || !_reportSessionActive || _reportSongId != song.id) return;
       _reportSessionActive = false;
-      await api.reportPlayEvent(song.id, '3',
+      unawaited(api.reportPlayEvent(song.id, '3',
           duration: _audioHandler.duration?.inSeconds,
-          playDuration: _audioHandler.position.inSeconds);
+          playDuration: _audioHandler.position.inSeconds));
     } catch (e) {
       // 上报失败不影响播放主流程
       debugPrint('播放统计上报失败 reportPlayInterrupt: $e');
