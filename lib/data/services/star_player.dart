@@ -88,6 +88,9 @@ enum PlayMode {
 class StarPlayer extends StarPlayerAbstract {
   GetStorage box = GetStorage();
   SgbProvider api = Get.put<SgbProvider>(SgbProvider());
+  // 播放统计上报的会话状态（用于开始事件去重）
+  String? _reportSongId; // 当前已上报开始事件的歌曲ID
+  bool _reportSessionActive = false; // 当前播放会话是否进行中
   static StarPlayer get to => Get.find();
   List<SgbData> songList = [];
   final Rx<int> _currentIndex = 0.obs;
@@ -142,8 +145,39 @@ class StarPlayer extends StarPlayerAbstract {
     return await api.getSgbDetail(currentSgbData!.id);
   }
 
+  /// 上报"开始播放"（会话未进行中才上报，暂停恢复不重复上报）
+  Future<void> reportPlayStart() async {
+    final song = currentSong.value;
+    if (song == null) return;
+    if (_reportSongId == song.id && _reportSessionActive) return;
+    _reportSongId = song.id;
+    _reportSessionActive = true;
+    await api.reportPlayEvent(song.id, '1');
+  }
+
+  /// 上报"播放完成"，播放时长取歌曲总时长
+  Future<void> reportPlayComplete() async {
+    final song = currentSong.value;
+    if (song == null || !_reportSessionActive || _reportSongId != song.id) return;
+    _reportSessionActive = false;
+    final int? total = _audioHandler.duration?.inSeconds;
+    await api.reportPlayEvent(song.id, '2',
+        duration: total, playDuration: total);
+  }
+
+  /// 上报"播放中断"（用户主动切歌），播放时长取切歌前已播进度
+  Future<void> reportPlayInterrupt() async {
+    final song = currentSong.value;
+    if (song == null || !_reportSessionActive || _reportSongId != song.id) return;
+    _reportSessionActive = false;
+    await api.reportPlayEvent(song.id, '3',
+        duration: _audioHandler.duration?.inSeconds,
+        playDuration: _audioHandler.position.inSeconds);
+  }
+
   @override
   Future<void> play() async {
+    await reportPlayStart();
     await _audioHandler.play();
   }
 
@@ -154,6 +188,7 @@ class StarPlayer extends StarPlayerAbstract {
 
   @override
   Future<void> next({bool isAuto = false}) async {
+    await reportPlayInterrupt(); // 上报中断后再切换
     if (currentIndex < songList.length - 1) {
       currentIndex++;
     } else {
@@ -177,6 +212,7 @@ class StarPlayer extends StarPlayerAbstract {
 
   @override
   Future<void> previous() async {
+    await reportPlayInterrupt(); // 上报中断后再切换
     if (currentIndex > 0) {
       currentIndex--;
     } else {

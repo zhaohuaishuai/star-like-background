@@ -35,4 +35,16 @@ class SgbProvider extends CommonGetConnect {
     final List<dynamic> rows = res.body['data'];
     return rows.map((json) => Song.fromJson(json)).toList();
   }
+
+  /// 上报播放事件（开始/完成/中断）
+  Future<void> reportPlayEvent(String songId, String eventType,
+      {int? duration, int? playDuration}) async {
+    await post('/start/zanmei/play/report', {
+      'songId': songId,
+      'eventType': eventType,
+      'clientType': '2',
+      'duration': duration,
+      'playDuration': playDuration,
+    });
+  }
 }

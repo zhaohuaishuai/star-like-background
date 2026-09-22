@@ -18,7 +18,7 @@ class StarAudioHandler extends BaseAudioHandler {
   // AudioPlayer get player => _player;
   PlayMode get playMode => StarPlayer().playMode.value;
 
-  StarPlayerAbstract starPlayer() => StarPlayer.to;
+  StarPlayer starPlayer() => StarPlayer.to;
 
   Stream<PlayerState> get playerStateStream => _player.playerStateStream;
 
@@ -29,6 +29,8 @@ class StarAudioHandler extends BaseAudioHandler {
   Stream<Duration> get positionStream => _player.positionStream;
 
   Duration? get duration => _player.duration;
+
+  Duration get position => _player.position;
 
   Stream<Duration?> get durationStream => _player.durationStream;
 
@@ -71,8 +73,9 @@ class StarAudioHandler extends BaseAudioHandler {
 
   void _notIosPlayEnd() {
     _player.setLoopMode(LoopMode.off);
-    playerStateStream.listen((event) {
+    playerStateStream.listen((event) async {
       if (event.processingState == ProcessingState.completed) {
+        await starPlayer().reportPlayComplete(); // 上报播放完成
         starPlayer().autoNext();
       }
     });
@@ -92,6 +95,7 @@ class StarAudioHandler extends BaseAudioHandler {
           }
           isReplaceIng = true;
           debugPrint('播放完成！');
+          await starPlayer().reportPlayComplete(); // 上报播放完成
           await pause();
 
           PlayMode playMode = await starPlayer().autoNext();
