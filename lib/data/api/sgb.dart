@@ -23,8 +23,9 @@ class SgbProvider extends CommonGetConnect {
     return rows.map((json) => ShijiType.fromJson(json)).toList();
   }
 
+  /// 获取歌曲详情（含实时播放地址，不做缓存，避免链接更新后仍播放旧资源）
   Future<Song> getSgbDetail(String id) async {
-    Response<dynamic> res = await get('/start/zanmei/sgb/$id',isCache: true);
+    Response<dynamic> res = await get('/start/zanmei/sgb/$id', isCache: false);
     final data = res.body['data'];
     return Song.fromJson(data);
   }

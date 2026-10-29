@@ -57,8 +57,9 @@ class DownFile {
       Directory? externalDir = await getDirectory();
 
       if (externalDir != null) {
-        String extension = path.extension(url);
-        fileName = fileName ?? path.basenameWithoutExtension(url);
+        String urlFileName = _urlToFileName(url);
+        String extension = path.extension(urlFileName);
+        fileName = fileName ?? path.basenameWithoutExtension(urlFileName);
         String savePath = '${externalDir.path}/$fileName$extension';
 
         // 检测文件是否存在
@@ -175,11 +176,29 @@ class DownFile {
     required String url,
   }) async {
     Directory? externalDir = await getDirectory();
-    String username = path.basename(url);
+    String username = _urlToFileName(url);
     if (kDebugMode) {
       print('本地路径：${externalDir?.path}/$username');
     }
     return '${externalDir?.path}/$username';
+  }
+
+  /// 将 URL 转换为本地文件名。
+  /// 会保留 URL 的 query 参数（如版本号、签名），
+  /// 避免同一文件名但内容更新（URL 变化）时命中旧缓存文件。
+  static String _urlToFileName(String url) {
+    Uri? uri = Uri.tryParse(url.trim());
+    String name = uri != null && uri.pathSegments.isNotEmpty
+        ? uri.pathSegments.last
+        : path.basename(url);
+    String query = uri?.query ?? '';
+    if (query.isNotEmpty) {
+      int hash = query.hashCode & 0x7fffffff;
+      String ext = path.extension(name);
+      String base = path.basenameWithoutExtension(name);
+      name = '$base' '_$hash' '$ext';
+    }
+    return name;
   }
 
   /// 下载安装包，并安装
